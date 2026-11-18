@@ -12,9 +12,10 @@ setoran daur ulang. Antarmuka tahap awal menggunakan Bahasa Indonesia.
 - Penjadwalan penjemputan sampah.
 - Rewards, edukasi pemilahan, onboarding, autentikasi, dan profil.
 
-Pada Tahap 1, halaman fitur selain beranda masih berupa placeholder.
 Navigasi utama memiliki lima tab: Beranda, Scan, Peta, Penjemputan, dan Rewards.
 Profil dapat dibuka dari Beranda.
+Onboarding dan autentikasi lokal berfungsi; halaman fitur lain yang belum
+diimplementasikan tetap berupa placeholder.
 
 ## Teknologi
 
@@ -75,6 +76,9 @@ test/
 Setiap fitur akan menambah layer `data`, `domain`, dan `presentation` saat
 fitur tersebut mulai diimplementasikan. Repository awal direncanakan memakai
 data lokal/dummy sebelum integrasi backend.
+
+Autentikasi demo menyimpan sesi aktif, tetapi akun/kata sandi mock hanya berada
+di memori proses. Gunakan Firebase Auth untuk akun persisten dan produksi.
 
 ## Analisis dan test
 

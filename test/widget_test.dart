@@ -1,12 +1,25 @@
 import 'package:ecotrash/app.dart';
+import 'package:ecotrash/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({
+      AppStorageKeys.onboardingCompleted: true,
+      AppStorageKeys.authUserId: 'kesha@example.com',
+      AppStorageKeys.authUserName: 'Kesha',
+      AppStorageKeys.authUserEmail: 'kesha@example.com',
+    });
+  });
+
   testWidgets('EcoTrash opens and all five tabs navigate', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: EcoTrashApp()));
+    await tester.pumpAndSettle();
 
+    expect(find.text('Halo, Kesha!'), findsOneWidget);
     expect(find.text('Poin Eco kamu'), findsOneWidget);
 
     const destinations = [
@@ -24,14 +37,13 @@ void main() {
 
     await tester.tap(find.text('Beranda').last);
     await tester.pumpAndSettle();
-    await tester.drag(find.byType(ListView), const Offset(0, -800));
+    await tester.tap(find.byKey(const Key('home-profile')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Profil'));
+    expect(find.byKey(const Key('profile-name')), findsOneWidget);
+    expect(find.text('kesha@example.com'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('profile-sign-out')));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Kelola akun dan preferensi EcoTrash-mu.'),
-      findsOneWidget,
-    );
+    expect(find.text('Selamat datang kembali'), findsOneWidget);
   });
 
   testWidgets('theme follows the system brightness', (tester) async {
@@ -40,6 +52,7 @@ void main() {
     addTearDown(platformDispatcher.clearPlatformBrightnessTestValue);
 
     await tester.pumpWidget(const ProviderScope(child: EcoTrashApp()));
+    await tester.pumpAndSettle();
     var scaffoldContext = tester.element(find.byType(Scaffold).first);
     expect(Theme.of(scaffoldContext).brightness, Brightness.light);
 
