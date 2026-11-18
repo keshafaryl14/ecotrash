@@ -13,6 +13,8 @@ import 'package:ecotrash/features/profile/presentation/profile_page.dart';
 import 'package:ecotrash/features/rewards/presentation/rewards_page.dart';
 import 'package:ecotrash/features/smart_scan/presentation/scan_result_page.dart';
 import 'package:ecotrash/features/smart_scan/presentation/smart_scan_page.dart';
+import 'package:ecotrash/features/waste_bank_directory/domain/entities/waste_bank.dart';
+import 'package:ecotrash/features/waste_bank_directory/presentation/waste_bank_detail_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -65,6 +67,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             return const ScanResultRouteErrorPage();
           }
           return ScanResultPage(args: args);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.bankDetail,
+        builder: (context, state) {
+          final bank = state.extra;
+          if (bank is! WasteBank) {
+            return const WasteBankDetailErrorPage();
+          }
+          return WasteBankDetailPage(bank: bank);
         },
       ),
       ShellRoute(

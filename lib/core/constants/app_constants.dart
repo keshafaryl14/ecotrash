@@ -10,6 +10,7 @@ abstract final class AppRoutes {
   static const scan = '/scan';
   static const scanResult = '/scan/result';
   static const map = '/map';
+  static const bankDetail = '/map/bank/:id';
   static const pickup = '/pickup';
   static const rewards = '/rewards';
   static const education = '/education';

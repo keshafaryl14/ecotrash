@@ -10,15 +10,17 @@ setoran daur ulang. Antarmuka tahap awal menggunakan Bahasa Indonesia.
 - Smart Scan memakai kamera atau galeri, menampilkan panduan pemilahan, dan
   menyimpan riwayat lokal. Klasifikasi saat ini masih berupa mock botol PET;
   kerangka integrasi TFLite tersedia, tetapi model belum dipasang.
-- Peta bank sampah dan mitra daur ulang.
+- Direktori bank sampah di peta OpenStreetMap, dengan pencarian, filter,
+  petunjuk arah, dan sepuluh lokasi demo di sekitar GPS pengguna.
 - Penjadwalan penjemputan sampah.
 - Rewards, edukasi pemilahan, onboarding, autentikasi, dan profil.
 
 Navigasi utama memiliki lima tab: Beranda, Scan, Peta, Penjemputan, dan Rewards.
 Profil dapat dibuka dari Beranda.
-Onboarding dan autentikasi lokal berfungsi; halaman fitur lain yang belum
-diimplementasikan tetap berupa placeholder. Smart Scan meminta izin kamera;
-izin galeri dikelola oleh pemilih foto sistem.
+Onboarding dan autentikasi lokal berfungsi. Smart Scan meminta izin kamera;
+izin galeri dikelola oleh pemilih foto sistem, sedangkan direktori bank sampah
+meminta izin lokasi saat dibuka. Penjemputan, rewards, dan edukasi masih berupa
+placeholder.
 
 ## Teknologi
 
@@ -26,6 +28,8 @@ izin galeri dikelola oleh pemilih foto sistem.
 - Riverpod untuk state management dan GoRouter untuk navigasi.
 - `shared_preferences` untuk penyimpanan lokal sederhana dan `intl` untuk
   pemformatan lokal.
+- `camera`, `image_picker`, `geolocator`, `flutter_map`, `latlong2`, dan
+  `url_launcher` untuk Smart Scan dan direktori bank sampah.
 - Struktur feature-first pada `lib/features/`; tema, router, konstanta, utilitas,
   dan widget aplikasi berada di `lib/core/`.
 
@@ -80,8 +84,11 @@ Setiap fitur akan menambah layer `data`, `domain`, dan `presentation` saat
 fitur tersebut mulai diimplementasikan. Repository awal direncanakan memakai
 data lokal/dummy sebelum integrasi backend.
 
-Autentikasi demo menyimpan sesi aktif, tetapi akun/kata sandi mock hanya berada
-di memori proses. Gunakan Firebase Auth untuk akun persisten dan produksi.
+Direktori bank sampah menggunakan lokasi perangkat dan data mitra dummy di
+sekitar lokasi tersebut; penggantian ke API bank sampah dapat dilakukan melalui
+`WasteBankRepository`. Autentikasi demo menyimpan sesi aktif, tetapi
+akun/kata sandi mock hanya berada di memori proses. Gunakan Firebase Auth untuk
+akun persisten dan produksi.
 
 ## Analisis dan test
 

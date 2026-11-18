@@ -1,5 +1,8 @@
 import 'package:ecotrash/app.dart';
 import 'package:ecotrash/core/constants/app_constants.dart';
+import 'package:ecotrash/features/waste_bank_directory/domain/entities/geo_point.dart';
+import 'package:ecotrash/features/waste_bank_directory/domain/services/location_service.dart';
+import 'package:ecotrash/features/waste_bank_directory/presentation/providers/waste_bank_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,7 +34,14 @@ void main() {
   });
 
   testWidgets('EcoTrash opens and all five tabs navigate', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: EcoTrashApp()));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          locationServiceProvider.overrideWithValue(_DeniedLocationService()),
+        ],
+        child: const EcoTrashApp(),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Halo, Kesha!'), findsOneWidget);
@@ -66,7 +76,14 @@ void main() {
     platformDispatcher.platformBrightnessTestValue = Brightness.light;
     addTearDown(platformDispatcher.clearPlatformBrightnessTestValue);
 
-    await tester.pumpWidget(const ProviderScope(child: EcoTrashApp()));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          locationServiceProvider.overrideWithValue(_DeniedLocationService()),
+        ],
+        child: const EcoTrashApp(),
+      ),
+    );
     await tester.pumpAndSettle();
     var scaffoldContext = tester.element(find.byType(Scaffold).first);
     expect(Theme.of(scaffoldContext).brightness, Brightness.light);
@@ -76,4 +93,20 @@ void main() {
     scaffoldContext = tester.element(find.byType(Scaffold).first);
     expect(Theme.of(scaffoldContext).brightness, Brightness.dark);
   });
+}
+
+class _DeniedLocationService implements LocationService {
+  @override
+  Future<GeoPoint> getCurrentLocation() async {
+    throw const LocationException(
+      LocationFailure.permissionDenied,
+      'Izin lokasi belum diberikan.',
+    );
+  }
+
+  @override
+  Future<bool> openAppSettings() async => false;
+
+  @override
+  Future<bool> openLocationSettings() async => false;
 }
