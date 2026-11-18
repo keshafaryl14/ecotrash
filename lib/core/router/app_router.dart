@@ -11,6 +11,7 @@ import 'package:ecotrash/features/onboarding/presentation/providers/onboarding_p
 import 'package:ecotrash/features/pickup/presentation/pickup_page.dart';
 import 'package:ecotrash/features/profile/presentation/profile_page.dart';
 import 'package:ecotrash/features/rewards/presentation/rewards_page.dart';
+import 'package:ecotrash/features/smart_scan/presentation/scan_result_page.dart';
 import 'package:ecotrash/features/smart_scan/presentation/smart_scan_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -55,6 +56,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.register,
         builder: (context, state) => const RegisterPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.scanResult,
+        builder: (context, state) {
+          final args = state.extra;
+          if (args is! ScanResultPageArgs) {
+            return const ScanResultRouteErrorPage();
+          }
+          return ScanResultPage(args: args);
+        },
       ),
       ShellRoute(
         builder: (context, state, child) =>

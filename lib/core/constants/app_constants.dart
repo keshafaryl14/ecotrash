@@ -8,6 +8,7 @@ abstract final class AppRoutes {
   static const register = '/register';
   static const home = '/home';
   static const scan = '/scan';
+  static const scanResult = '/scan/result';
   static const map = '/map';
   static const pickup = '/pickup';
   static const rewards = '/rewards';

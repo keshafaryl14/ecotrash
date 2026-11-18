@@ -1,12 +1,27 @@
 import 'package:ecotrash/app.dart';
 import 'package:ecotrash/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   setUp(() {
+    const permissionsChannel = MethodChannel(
+      'flutter.baseflow.com/permissions/methods',
+    );
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(permissionsChannel, (call) async {
+          if (call.method == 'checkPermissionStatus') {
+            return 0;
+          }
+          if (call.method == 'requestPermissions') {
+            final permissionIds = call.arguments as List<dynamic>;
+            return {for (final id in permissionIds) id as int: 0};
+          }
+          return false;
+        });
     SharedPreferences.setMockInitialValues({
       AppStorageKeys.onboardingCompleted: true,
       AppStorageKeys.authUserId: 'kesha@example.com',

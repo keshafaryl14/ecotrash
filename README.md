@@ -7,7 +7,9 @@ setoran daur ulang. Antarmuka tahap awal menggunakan Bahasa Indonesia.
 ## Fitur
 
 - Beranda dengan pintasan fitur dan ringkasan poin.
-- Smart Scan untuk identifikasi dan panduan pemilahan sampah.
+- Smart Scan memakai kamera atau galeri, menampilkan panduan pemilahan, dan
+  menyimpan riwayat lokal. Klasifikasi saat ini masih berupa mock botol PET;
+  kerangka integrasi TFLite tersedia, tetapi model belum dipasang.
 - Peta bank sampah dan mitra daur ulang.
 - Penjadwalan penjemputan sampah.
 - Rewards, edukasi pemilahan, onboarding, autentikasi, dan profil.
@@ -15,7 +17,8 @@ setoran daur ulang. Antarmuka tahap awal menggunakan Bahasa Indonesia.
 Navigasi utama memiliki lima tab: Beranda, Scan, Peta, Penjemputan, dan Rewards.
 Profil dapat dibuka dari Beranda.
 Onboarding dan autentikasi lokal berfungsi; halaman fitur lain yang belum
-diimplementasikan tetap berupa placeholder.
+diimplementasikan tetap berupa placeholder. Smart Scan meminta izin kamera;
+izin galeri dikelola oleh pemilih foto sistem.
 
 ## Teknologi
 

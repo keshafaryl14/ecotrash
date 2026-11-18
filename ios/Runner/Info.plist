@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Kamera digunakan untuk mengenali jenis sampah melalui Smart Scan.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Galeri digunakan untuk memilih foto sampah yang akan dipindai.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Lokasi digunakan untuk menemukan bank sampah terdekat.</string>
 	<key>UIApplicationSceneManifest</key>
