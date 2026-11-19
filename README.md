@@ -12,15 +12,20 @@ setoran daur ulang. Antarmuka tahap awal menggunakan Bahasa Indonesia.
   kerangka integrasi TFLite tersedia, tetapi model belum dipasang.
 - Direktori bank sampah di peta OpenStreetMap, dengan pencarian, filter,
   petunjuk arah, dan sepuluh lokasi demo di sekitar GPS pengguna.
-- Penjadwalan penjemputan sampah.
+- Formulir bertahap untuk menjadwalkan penjemputan sampah, daftar pesanan aktif
+  dan riwayat, detail dengan lini masa status, serta pembatalan sebelum kurir
+  berangkat.
+- Pengingat lokal sebelum jadwal dan notifikasi perubahan status. Status demo
+  bergerak otomatis setiap 30 detik; poin ditambahkan ke ledger lokal setelah
+  pesanan selesai.
 - Rewards, edukasi pemilahan, onboarding, autentikasi, dan profil.
 
 Navigasi utama memiliki lima tab: Beranda, Scan, Peta, Penjemputan, dan Rewards.
 Profil dapat dibuka dari Beranda.
 Onboarding dan autentikasi lokal berfungsi. Smart Scan meminta izin kamera;
 izin galeri dikelola oleh pemilih foto sistem, sedangkan direktori bank sampah
-meminta izin lokasi saat dibuka. Penjemputan, rewards, dan edukasi masih berupa
-placeholder.
+meminta izin lokasi saat dibuka. Layanan penjemputan menyimpan pesanan dan poin
+secara lokal untuk demo; rewards dan edukasi masih berupa placeholder.
 
 ## Teknologi
 
@@ -28,6 +33,8 @@ placeholder.
 - Riverpod untuk state management dan GoRouter untuk navigasi.
 - `shared_preferences` untuk penyimpanan lokal sederhana dan `intl` untuk
   pemformatan lokal.
+- `flutter_local_notifications`, `flutter_timezone`, dan `timezone` untuk
+  pengingat serta notifikasi status penjemputan.
 - `camera`, `image_picker`, `geolocator`, `flutter_map`, `latlong2`, dan
   `url_launcher` untuk Smart Scan dan direktori bank sampah.
 - Struktur feature-first pada `lib/features/`; tema, router, konstanta, utilitas,

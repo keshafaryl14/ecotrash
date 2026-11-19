@@ -9,6 +9,8 @@ import 'package:ecotrash/features/home/presentation/home_page.dart';
 import 'package:ecotrash/features/onboarding/presentation/onboarding_page.dart';
 import 'package:ecotrash/features/onboarding/presentation/providers/onboarding_providers.dart';
 import 'package:ecotrash/features/pickup/presentation/pickup_page.dart';
+import 'package:ecotrash/features/pickup/presentation/pickup_order_detail_page.dart';
+import 'package:ecotrash/features/pickup/presentation/pickup_order_form_page.dart';
 import 'package:ecotrash/features/profile/presentation/profile_page.dart';
 import 'package:ecotrash/features/rewards/presentation/rewards_page.dart';
 import 'package:ecotrash/features/smart_scan/presentation/scan_result_page.dart';
@@ -98,6 +100,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.pickup,
             builder: (context, state) => const PickupPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.pickupNew,
+            builder: (context, state) => PickupOrderFormPage(
+              prefill: state.extra is PickupFormPrefill
+                  ? state.extra! as PickupFormPrefill
+                  : null,
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.pickupDetail,
+            builder: (context, state) =>
+                PickupOrderDetailPage(orderId: state.pathParameters['id']!),
           ),
           GoRoute(
             path: AppRoutes.rewards,

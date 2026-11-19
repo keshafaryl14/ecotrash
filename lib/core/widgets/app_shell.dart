@@ -43,7 +43,10 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedIndex = _destinations.indexWhere(
-      (destination) => destination.path == currentLocation,
+      (destination) =>
+          destination.path == currentLocation ||
+          (destination.path == AppRoutes.pickup &&
+              currentLocation.startsWith('${AppRoutes.pickup}/')),
     );
 
     return Scaffold(

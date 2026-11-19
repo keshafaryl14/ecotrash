@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:ecotrash/core/constants/app_constants.dart';
 import 'package:ecotrash/features/smart_scan/domain/entities/waste_classification.dart';
+import 'package:ecotrash/features/pickup/presentation/pickup_order_form_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -159,7 +160,12 @@ class ScanResultPage extends StatelessWidget {
           const SizedBox(height: 10),
           OutlinedButton.icon(
             key: const Key('scan-result-pickup-button'),
-            onPressed: () => context.go(AppRoutes.pickup),
+            onPressed: () => context.go(
+              AppRoutes.pickupNew,
+              extra: PickupFormPrefill.fromScannedType(
+                classification.specificType,
+              ),
+            ),
             icon: const Icon(Icons.local_shipping_outlined),
             label: const Text('Jadwalkan Penjemputan'),
           ),

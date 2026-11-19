@@ -1,5 +1,7 @@
 import 'package:ecotrash/core/constants/app_constants.dart';
 import 'package:ecotrash/features/waste_bank_directory/domain/entities/waste_bank.dart';
+import 'package:ecotrash/features/pickup/domain/entities/pickup_order.dart';
+import 'package:ecotrash/features/pickup/presentation/pickup_order_form_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -144,13 +146,41 @@ class WasteBankDetailPage extends StatelessWidget {
           const SizedBox(height: 10),
           TextButton.icon(
             key: const Key('waste-bank-pickup'),
-            onPressed: () => context.go(AppRoutes.pickup),
+            onPressed: () => context.go(
+              AppRoutes.pickupNew,
+              extra: PickupFormPrefill(
+                address: bank.address,
+                wasteType: bank.acceptedWasteTypes.isEmpty
+                    ? null
+                    : _pickupTypeFor(bank.acceptedWasteTypes.first),
+              ),
+            ),
             icon: const Icon(Icons.local_shipping_outlined),
             label: const Text('Jadwalkan Penjemputan'),
           ),
         ],
       ),
     );
+  }
+
+  PickupWasteType? _pickupTypeFor(String wasteType) {
+    final normalized = wasteType.toLowerCase();
+    if (normalized.contains('plastik')) {
+      return PickupWasteType.plastic;
+    }
+    if (normalized.contains('kertas') || normalized.contains('kardus')) {
+      return PickupWasteType.paperCardboard;
+    }
+    if (normalized.contains('kaca')) {
+      return PickupWasteType.glass;
+    }
+    if (normalized.contains('logam')) {
+      return PickupWasteType.metal;
+    }
+    if (normalized.contains('elektronik')) {
+      return PickupWasteType.smallElectronics;
+    }
+    return null;
   }
 }
 
