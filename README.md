@@ -18,14 +18,18 @@ setoran daur ulang. Antarmuka tahap awal menggunakan Bahasa Indonesia.
 - Pengingat lokal sebelum jadwal dan notifikasi perubahan status. Status demo
   bergerak otomatis setiap 30 detik; poin ditambahkan ke ledger lokal setelah
   pesanan selesai.
-- Rewards, edukasi pemilahan, onboarding, autentikasi, dan profil.
+- Rewards dengan saldo dan riwayat poin lokal, level pengguna, katalog voucher,
+  voucher e-wallet demo, dan daftar voucher aktif/terpakai/kedaluwarsa.
+- Edukasi pemilahan, onboarding, autentikasi, dan profil.
 
 Navigasi utama memiliki lima tab: Beranda, Scan, Peta, Penjemputan, dan Rewards.
 Profil dapat dibuka dari Beranda.
 Onboarding dan autentikasi lokal berfungsi. Smart Scan meminta izin kamera;
 izin galeri dikelola oleh pemilih foto sistem, sedangkan direktori bank sampah
 meminta izin lokasi saat dibuka. Layanan penjemputan menyimpan pesanan dan poin
-secara lokal untuk demo; rewards dan edukasi masih berupa placeholder.
+secara lokal untuk demo. Tarif poin per kilogram diatur di
+`lib/core/constants/points_configuration.dart`. Kode e-wallet masih berupa
+kode demo dan belum mengirim saldo ke penyedia pembayaran.
 
 ## Teknologi
 

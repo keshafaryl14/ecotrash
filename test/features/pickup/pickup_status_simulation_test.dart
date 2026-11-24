@@ -1,4 +1,6 @@
+import 'package:ecotrash/core/services/points_providers.dart';
 import 'package:ecotrash/core/services/points_service.dart';
+import 'package:ecotrash/core/services/points_transaction.dart';
 import 'package:ecotrash/features/pickup/domain/entities/pickup_order.dart';
 import 'package:ecotrash/features/pickup/domain/repositories/pickup_order_repository.dart';
 import 'package:ecotrash/features/pickup/domain/services/pickup_notification_service.dart';
@@ -53,7 +55,7 @@ void main() {
       container.read(pickupOrderControllerProvider).requireValue.single.status,
       PickupOrderStatus.completed,
     );
-    expect(points.awards, [('simulated-order', 30)]);
+    expect(points.awards, [('simulated-order', 45)]);
   });
 }
 
@@ -114,6 +116,30 @@ class _SilentNotificationService implements PickupNotificationService {
 
 class _RecordingPointsService implements PointsService {
   final List<(String, int)> awards = [];
+
+  @override
+  Future<int> getBalance() async => 0;
+
+  @override
+  Future<int> getLifetimePoints() async => 0;
+
+  @override
+  Future<List<PointsTransaction>> getTransactions() async => [];
+
+  @override
+  Future<void> addPoints({
+    required int points,
+    required PointsSource source,
+    required String description,
+    String? referenceId,
+  }) async {}
+
+  @override
+  Future<void> redeemPoints({
+    required int points,
+    required String description,
+    required String referenceId,
+  }) async {}
 
   @override
   Future<void> awardPickupCompletion({

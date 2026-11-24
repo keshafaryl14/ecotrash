@@ -13,6 +13,7 @@ import 'package:ecotrash/features/pickup/presentation/pickup_order_detail_page.d
 import 'package:ecotrash/features/pickup/presentation/pickup_order_form_page.dart';
 import 'package:ecotrash/features/profile/presentation/profile_page.dart';
 import 'package:ecotrash/features/rewards/presentation/rewards_page.dart';
+import 'package:ecotrash/features/rewards/presentation/rewards_vouchers_page.dart';
 import 'package:ecotrash/features/smart_scan/presentation/scan_result_page.dart';
 import 'package:ecotrash/features/smart_scan/presentation/smart_scan_page.dart';
 import 'package:ecotrash/features/waste_bank_directory/domain/entities/waste_bank.dart';
@@ -117,6 +118,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.rewards,
             builder: (context, state) => const RewardsPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.rewardVouchers,
+            builder: (context, state) => const RewardsVouchersPage(),
           ),
           GoRoute(
             path: AppRoutes.education,

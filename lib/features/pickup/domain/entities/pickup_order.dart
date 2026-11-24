@@ -1,3 +1,5 @@
+import 'package:ecotrash/core/constants/points_configuration.dart';
+
 enum PickupWasteType { plastic, paperCardboard, glass, metal, smallElectronics }
 
 extension PickupWasteTypeLabel on PickupWasteType {
@@ -61,7 +63,7 @@ class PickupOrder {
   double get totalWeightKg =>
       wasteWeightsKg.values.fold(0, (total, weight) => total + weight);
 
-  int get estimatedPoints => estimatePickupPoints(totalWeightKg);
+  int get estimatedPoints => estimatePickupPointsForWeights(wasteWeightsKg);
 
   PickupOrder copyWith({PickupOrderStatus? status}) {
     return PickupOrder(
@@ -131,4 +133,10 @@ class PickupOrder {
   };
 }
 
-int estimatePickupPoints(double totalWeightKg) => (totalWeightKg * 10).round();
+int estimatePickupPointsForWeights(Map<PickupWasteType, double> weightsKg) =>
+    PointsConfiguration.pointsForWeights({
+      for (final entry in weightsKg.entries) entry.key.name: entry.value,
+    });
+
+int estimatePickupPoints(double totalWeightKg) =>
+    (totalWeightKg * PointsConfiguration.fallbackPointsPerKilogram).round();

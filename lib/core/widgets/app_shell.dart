@@ -45,6 +45,8 @@ class AppShell extends StatelessWidget {
     final selectedIndex = _destinations.indexWhere(
       (destination) =>
           destination.path == currentLocation ||
+          (destination.path == AppRoutes.rewards &&
+              currentLocation.startsWith('${AppRoutes.rewards}/')) ||
           (destination.path == AppRoutes.pickup &&
               currentLocation.startsWith('${AppRoutes.pickup}/')),
     );

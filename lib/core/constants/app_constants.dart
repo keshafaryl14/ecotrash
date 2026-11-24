@@ -15,6 +15,7 @@ abstract final class AppRoutes {
   static const pickupNew = '/pickup/new';
   static const pickupDetail = '/pickup/:id';
   static const rewards = '/rewards';
+  static const rewardVouchers = '/rewards/vouchers';
   static const education = '/education';
   static const profile = '/profile';
 }

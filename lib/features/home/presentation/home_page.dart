@@ -1,4 +1,5 @@
 import 'package:ecotrash/core/constants/app_constants.dart';
+import 'package:ecotrash/core/services/points_providers.dart';
 import 'package:ecotrash/features/auth/domain/entities/auth_user.dart';
 import 'package:ecotrash/features/auth/presentation/auth_error_message.dart';
 import 'package:ecotrash/features/auth/presentation/providers/auth_providers.dart';
@@ -72,14 +73,15 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-class _HomeContent extends StatelessWidget {
+class _HomeContent extends ConsumerWidget {
   const _HomeContent({required this.user});
 
   final AuthUser user;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
+    final points = ref.watch(pointsBalanceProvider);
 
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -134,11 +136,20 @@ class _HomeContent extends StatelessWidget {
                         'Poin Eco kamu',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      Text(
-                        '120 poin',
-                        key: const Key('home-points'),
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                      points.when(
+                        loading: () =>
+                            const Text('Memuat…', key: Key('home-points')),
+                        error: (error, _) => Text(
+                          'Tidak tersedia',
+                          key: const Key('home-points'),
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        data: (value) => Text(
+                          '$value poin',
+                          key: const Key('home-points'),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ],
                   ),

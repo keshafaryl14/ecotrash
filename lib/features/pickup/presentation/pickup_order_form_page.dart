@@ -91,7 +91,7 @@ class _PickupOrderFormPageState extends ConsumerState<PickupOrderFormPage> {
   double get _totalWeight =>
       _weights.values.fold(0, (total, weight) => total + weight);
 
-  int get _estimatedPoints => estimatePickupPoints(_totalWeight);
+  int get _estimatedPoints => estimatePickupPointsForWeights(_weights);
 
   void _updateWeight(PickupWasteType type, String value) {
     final weight = double.tryParse(value);

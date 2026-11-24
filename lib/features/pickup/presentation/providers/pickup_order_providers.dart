@@ -1,7 +1,6 @@
 import 'dart:async';
 
-import 'package:ecotrash/core/services/points_service.dart';
-import 'package:ecotrash/core/services/shared_preferences_points_service.dart';
+import 'package:ecotrash/core/services/points_providers.dart';
 import 'package:ecotrash/features/pickup/data/repositories/shared_preferences_pickup_order_repository.dart';
 import 'package:ecotrash/features/pickup/data/services/local_pickup_notification_service.dart';
 import 'package:ecotrash/features/pickup/domain/entities/pickup_order.dart';
@@ -17,10 +16,6 @@ final pickupNotificationServiceProvider = Provider<PickupNotificationService>((
   ref,
 ) {
   return LocalPickupNotificationService();
-});
-
-final pointsServiceProvider = Provider<PointsService>((ref) {
-  return SharedPreferencesPointsService();
 });
 
 final pickupSimulationIntervalProvider = Provider<Duration>((ref) {
@@ -50,6 +45,10 @@ class PickupOrderController extends AsyncNotifier<List<PickupOrder>> {
             orderId: order.id,
             points: order.estimatedPoints,
           );
+      ref
+        ..invalidate(pointsBalanceProvider)
+        ..invalidate(lifetimePointsProvider)
+        ..invalidate(pointsTransactionsProvider);
     }
     _statusTimer = Timer.periodic(
       ref.read(pickupSimulationIntervalProvider),
@@ -116,7 +115,6 @@ class PickupOrderController extends AsyncNotifier<List<PickupOrder>> {
     }
     final updated = order.copyWith(status: nextStatus);
     await ref.read(pickupOrderRepositoryProvider).updateOrder(updated);
-    await _reloadOrders();
 
     if (nextStatus == PickupOrderStatus.completed) {
       await ref
@@ -125,7 +123,12 @@ class PickupOrderController extends AsyncNotifier<List<PickupOrder>> {
             orderId: updated.id,
             points: updated.estimatedPoints,
           );
+      ref
+        ..invalidate(pointsBalanceProvider)
+        ..invalidate(lifetimePointsProvider)
+        ..invalidate(pointsTransactionsProvider);
     }
+    await _reloadOrders();
     final notifications = ref.read(pickupNotificationServiceProvider);
     await notifications.showStatusChange(updated, nextStatus);
     if (nextStatus == PickupOrderStatus.completed) {

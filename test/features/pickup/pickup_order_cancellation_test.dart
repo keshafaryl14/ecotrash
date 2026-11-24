@@ -1,4 +1,6 @@
+import 'package:ecotrash/core/services/points_providers.dart';
 import 'package:ecotrash/core/services/points_service.dart';
+import 'package:ecotrash/core/services/points_transaction.dart';
 import 'package:ecotrash/features/pickup/domain/entities/pickup_order.dart';
 import 'package:ecotrash/features/pickup/domain/repositories/pickup_order_repository.dart';
 import 'package:ecotrash/features/pickup/domain/services/pickup_notification_service.dart';
@@ -175,6 +177,30 @@ class _FakePickupNotificationService implements PickupNotificationService {
 }
 
 class _FakePointsService implements PointsService {
+  @override
+  Future<int> getBalance() async => 0;
+
+  @override
+  Future<int> getLifetimePoints() async => 0;
+
+  @override
+  Future<List<PointsTransaction>> getTransactions() async => [];
+
+  @override
+  Future<void> addPoints({
+    required int points,
+    required PointsSource source,
+    required String description,
+    String? referenceId,
+  }) async {}
+
+  @override
+  Future<void> redeemPoints({
+    required int points,
+    required String description,
+    required String referenceId,
+  }) async {}
+
   @override
   Future<void> awardPickupCompletion({
     required String orderId,

@@ -10,6 +10,37 @@ class PickupPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(pickupOrderControllerProvider, (previous, next) {
+      final previousOrders = previous?.asData?.value;
+      final completedOrders = next.asData?.value;
+      if (previousOrders == null || completedOrders == null) {
+        return;
+      }
+      for (final order in completedOrders.where(
+        (item) => item.status == PickupOrderStatus.completed,
+      )) {
+        final wasCompleted = previousOrders.any(
+          (previousOrder) =>
+              previousOrder.id == order.id &&
+              previousOrder.status == PickupOrderStatus.completed,
+        );
+        if (!wasCompleted) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Penjemputan selesai! ${order.estimatedPoints} poin masuk.',
+                ),
+                action: SnackBarAction(
+                  label: 'Rewards',
+                  onPressed: () => context.go(AppRoutes.rewards),
+                ),
+              ),
+            );
+        }
+      }
+    });
     final orders = ref.watch(pickupOrderControllerProvider);
 
     return orders.when(
