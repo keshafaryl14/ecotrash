@@ -30,7 +30,7 @@ val releaseSigningConfigured = listOf(
 
 android {
     namespace = "com.ecotrash.ecotrash"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
