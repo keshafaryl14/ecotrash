@@ -97,7 +97,11 @@ void main() {
 
       await tester.tap(find.byKey(const Key('home-profile')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('profile-sign-out')));
+      final signOut = find.byKey(const Key('profile-sign-out'));
+      await tester.scrollUntilVisible(signOut, 300);
+      await tester.tap(signOut);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('profile-sign-out-confirm')));
       await tester.pumpAndSettle();
       expect(find.text('Selamat datang kembali'), findsOneWidget);
 

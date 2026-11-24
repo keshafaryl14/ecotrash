@@ -55,4 +55,18 @@ void main() {
       throwsA(isA<AuthException>()),
     );
   });
+
+  test('updates the display name in the persisted session', () async {
+    final repository = LocalAuthRepository();
+    await repository.register(
+      name: 'Kesha',
+      email: 'kesha@example.com',
+      password: 'sampah123',
+    );
+
+    final updated = await repository.updateDisplayName('Kesha Faryl');
+
+    expect(updated.name, 'Kesha Faryl');
+    expect((await repository.getCurrentUser())?.name, 'Kesha Faryl');
+  });
 }

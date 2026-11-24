@@ -66,7 +66,31 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('profile-name')), findsOneWidget);
     expect(find.text('kesha@example.com'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('profile-sign-out')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('profile-total-weight')), findsOneWidget);
+    expect(find.text('0.0 kg'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('profile-edit-name')));
+    await tester.tap(find.byKey(const Key('profile-edit-name')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('profile-name-input')),
+      'Kesha Eco',
+    );
+    await tester.tap(find.byKey(const Key('profile-save-name')));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<Text>(find.byKey(const Key('profile-name'))).data,
+      'Kesha Eco',
+    );
+    expect(find.text('Tampilan aplikasi'), findsOneWidget);
+    await tester.drag(find.byType(ListView).last, const Offset(0, -900));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('profile-sign-out')), findsOneWidget);
+    final signOut = find.byKey(const Key('profile-sign-out'));
+    await tester.scrollUntilVisible(signOut, 300);
+    await tester.tap(signOut);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('profile-sign-out-confirm')));
     await tester.pumpAndSettle();
     expect(find.text('Selamat datang kembali'), findsOneWidget);
   });

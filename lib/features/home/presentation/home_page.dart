@@ -216,6 +216,16 @@ class _HomeContent extends ConsumerWidget {
             ),
           ),
         ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            key: const Key('home-education-link'),
+            onPressed: () => context.go(AppRoutes.education),
+            icon: const Icon(Icons.menu_book_outlined),
+            label: const Text('Buka panduan edukasi'),
+          ),
+        ),
       ],
     );
   }

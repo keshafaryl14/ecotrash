@@ -17,6 +17,8 @@ abstract final class AppRoutes {
   static const rewards = '/rewards';
   static const rewardVouchers = '/rewards/vouchers';
   static const education = '/education';
+  static const educationArticle = '/education/article/:slug';
+  static const educationQuiz = '/education/quiz';
   static const profile = '/profile';
 }
 

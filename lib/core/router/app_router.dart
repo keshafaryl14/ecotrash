@@ -5,6 +5,9 @@ import 'package:ecotrash/features/auth/presentation/providers/auth_providers.dar
 import 'package:ecotrash/features/auth/presentation/register_page.dart';
 import 'package:ecotrash/features/waste_bank_directory/presentation/waste_bank_directory_page.dart';
 import 'package:ecotrash/features/education/presentation/education_page.dart';
+import 'package:ecotrash/features/education/domain/entities/education_article.dart';
+import 'package:ecotrash/features/education/presentation/education_article_page.dart';
+import 'package:ecotrash/features/education/presentation/education_quiz_page.dart';
 import 'package:ecotrash/features/home/presentation/home_page.dart';
 import 'package:ecotrash/features/onboarding/presentation/onboarding_page.dart';
 import 'package:ecotrash/features/onboarding/presentation/providers/onboarding_providers.dart';
@@ -18,6 +21,7 @@ import 'package:ecotrash/features/smart_scan/presentation/scan_result_page.dart'
 import 'package:ecotrash/features/smart_scan/presentation/smart_scan_page.dart';
 import 'package:ecotrash/features/waste_bank_directory/domain/entities/waste_bank.dart';
 import 'package:ecotrash/features/waste_bank_directory/presentation/waste_bank_detail_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -126,6 +130,47 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.education,
             builder: (context, state) => const EducationPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.educationArticle,
+            pageBuilder: (context, state) {
+              final article = EducationArticle.bySlug(
+                state.pathParameters['slug']!,
+              );
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: article == null
+                    ? const EducationArticleNotFoundPage()
+                    : EducationArticlePage(article: article),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                      final position = Tween<Offset>(
+                        begin: const Offset(0, 0.02),
+                        end: Offset.zero,
+                      ).animate(animation);
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: position,
+                          child: child,
+                        ),
+                      );
+                    },
+              );
+            },
+          ),
+          GoRoute(
+            path: AppRoutes.educationQuiz,
+            pageBuilder: (context, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: const EducationQuizPage(),
+              transitionsBuilder: (
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+              ) => FadeTransition(opacity: animation, child: child),
+            ),
           ),
           GoRoute(
             path: AppRoutes.profile,

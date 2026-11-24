@@ -69,6 +69,29 @@ class LocalAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<AuthUser> updateDisplayName(String name) async {
+    final normalizedName = name.trim();
+    if (normalizedName.isEmpty) {
+      throw const AuthException('Nama wajib diisi.');
+    }
+    final user = await getCurrentUser();
+    if (user == null) {
+      throw const AuthException('Sesi tidak ditemukan. Silakan masuk kembali.');
+    }
+    final updatedUser = AuthUser(
+      id: user.id,
+      name: normalizedName,
+      email: user.email,
+    );
+    await _saveSession(updatedUser);
+    final account = _accounts[user.email];
+    if (account != null) {
+      account.user = updatedUser;
+    }
+    return updatedUser;
+  }
+
+  @override
   Future<void> signOut() async {
     final preferences = await SharedPreferences.getInstance();
     await _clearSession(preferences);
@@ -102,8 +125,8 @@ class LocalAuthRepository implements AuthRepository {
 }
 
 class _LocalAccount {
-  const _LocalAccount(this.user, this.password);
+  _LocalAccount(this.user, this.password);
 
-  final AuthUser user;
+  AuthUser user;
   final String password;
 }

@@ -1,52 +1,57 @@
 # EcoTrash
 
-EcoTrash adalah aplikasi mobile untuk membantu masyarakat memilah sampah,
-menemukan bank sampah, menjadwalkan penjemputan, serta memperoleh reward dari
-setoran daur ulang. Antarmuka tahap awal menggunakan Bahasa Indonesia.
+[![Flutter CI](https://github.com/keshafaryl14/ecotrash/actions/workflows/flutter.yml/badge.svg)](https://github.com/keshafaryl14/ecotrash/actions/workflows/flutter.yml)
+
+EcoTrash menghubungkan masyarakat dengan pemilahan sampah, bank sampah, layanan
+penjemputan, poin, dan edukasi keberlanjutan. Aplikasi menggunakan Flutter,
+Material 3, Riverpod, dan GoRouter.
 
 ## Fitur
 
-- Beranda dengan pintasan fitur dan ringkasan poin.
-- Smart Scan memakai kamera atau galeri, menampilkan panduan pemilahan, dan
-  menyimpan riwayat lokal. Klasifikasi saat ini masih berupa mock botol PET;
-  kerangka integrasi TFLite tersedia, tetapi model belum dipasang.
-- Direktori bank sampah di peta OpenStreetMap, dengan pencarian, filter,
-  petunjuk arah, dan sepuluh lokasi demo di sekitar GPS pengguna.
-- Formulir bertahap untuk menjadwalkan penjemputan sampah, daftar pesanan aktif
-  dan riwayat, detail dengan lini masa status, serta pembatalan sebelum kurir
-  berangkat.
-- Pengingat lokal sebelum jadwal dan notifikasi perubahan status. Status demo
-  bergerak otomatis setiap 30 detik; poin ditambahkan ke ledger lokal setelah
-  pesanan selesai.
-- Rewards dengan saldo dan riwayat poin lokal, level pengguna, katalog voucher,
-  voucher e-wallet demo, dan daftar voucher aktif/terpakai/kedaluwarsa.
-- Edukasi pemilahan, onboarding, autentikasi, dan profil.
+- Onboarding, autentikasi lokal, dan profil dengan ubah nama serta tema terang,
+  gelap, atau mengikuti sistem.
+- Beranda dengan saldo poin aktual, pintasan fitur, dan tips pemilahan.
+- Smart Scan melalui kamera/galeri, hasil klasifikasi mock, panduan penanganan,
+  dan riwayat lokal. Model ML belum dipasang.
+- Direktori OpenStreetMap dengan lokasi GPS, pencarian, filter, dan sepuluh
+  bank sampah demo.
+- Pemesanan penjemputan bertahap, status simulasi, riwayat, pembatalan,
+  notifikasi lokal, dan perolehan poin saat selesai.
+- Rewards dengan histori transaksi, level, katalog e-wallet dan voucher ramah
+  lingkungan, serta halaman voucher aktif/terpakai/kedaluwarsa.
+- Artikel pemilahan organik, anorganik, dan B3, detail artikel, serta kuis lima
+  pertanyaan.
 
-Navigasi utama memiliki lima tab: Beranda, Scan, Peta, Penjemputan, dan Rewards.
-Profil dapat dibuka dari Beranda.
-Onboarding dan autentikasi lokal berfungsi. Smart Scan meminta izin kamera;
-izin galeri dikelola oleh pemilih foto sistem, sedangkan direktori bank sampah
-meminta izin lokasi saat dibuka. Layanan penjemputan menyimpan pesanan dan poin
-secara lokal untuk demo. Tarif poin per kilogram diatur di
-`lib/core/constants/points_configuration.dart`. Kode e-wallet masih berupa
-kode demo dan belum mengirim saldo ke penyedia pembayaran.
+## Status demo dan batasan
 
-## Teknologi
+Repository dan data mitra masih lokal/dummy. Smart Scan belum memakai model
+ML; status penjemputan berjalan otomatis setiap 30 detik; kode e-wallet
+merupakan kode demo dan tidak memindahkan saldo sungguhan. Poin disimpan lokal
+di perangkat. Data contoh dan akses GPS tidak menggantikan layanan produksi.
+Pengujian pada ponsel fisik dan build rilis tetap memerlukan Android SDK,
+perangkat, serta keystore milik pemilik aplikasi.
 
-- Flutter dan Dart null safety, Material 3.
-- Riverpod untuk state management dan GoRouter untuk navigasi.
-- `shared_preferences` untuk penyimpanan lokal sederhana dan `intl` untuk
-  pemformatan lokal.
-- `flutter_local_notifications`, `flutter_timezone`, dan `timezone` untuk
-  pengingat serta notifikasi status penjemputan.
-- `camera`, `image_picker`, `geolocator`, `flutter_map`, `latlong2`, dan
-  `url_launcher` untuk Smart Scan dan direktori bank sampah.
-- Struktur feature-first pada `lib/features/`; tema, router, konstanta, utilitas,
-  dan widget aplikasi berada di `lib/core/`.
+## Arsitektur
+
+Struktur feature-first memisahkan entity/kontrak di `domain`, implementasi lokal
+di `data`, dan UI/provider di `presentation`.
+
+```text
+lib/
+  core/          tema, router, konstanta, layanan bersama, widget
+  features/
+    auth/ home/ smart_scan/ waste_bank_directory/
+    pickup/ rewards/ education/ profile/
+test/
+```
+
+State dikelola dengan Riverpod, navigasi dengan GoRouter. `shared_preferences`
+dipakai untuk prototipe lokal. Tarif poin per kilogram disimpan terpusat di
+`lib/core/constants/points_configuration.dart`.
 
 ## Menjalankan aplikasi
 
-Pasang Flutter stable, Git, Android Studio, serta Android SDK. Dari root proyek:
+Pasang Flutter stable, Git, Android Studio, dan Android SDK. Dari root proyek:
 
 ```shell
 flutter doctor
@@ -57,51 +62,47 @@ flutter run
 
 ### Android
 
-1. Pasang Android SDK dan command-line tools melalui Android Studio. Jika perlu,
-   jalankan `flutter doctor --android-licenses`.
-2. Pada ponsel, aktifkan **Developer Options** dan **USB debugging**.
-3. Hubungkan ponsel dengan USB (atau Wireless Debugging), lalu pastikan muncul
-   di `flutter devices`.
-4. Jalankan `flutter run`.
+Aktifkan **Developer Options** dan **USB debugging**, sambungkan perangkat
+(atau aktifkan Wireless Debugging), lalu pastikan perangkat tampil di
+`flutter devices`. Terima dialog otorisasi USB dan jalankan `flutter run`.
+Jika lisensi Android belum diterima, jalankan `flutter doctor --android-licenses`.
 
 ### iOS (memerlukan Mac)
 
 Pasang Xcode dan CocoaPods, buka `ios/Runner.xcworkspace`, pilih target Runner,
-dan atur **Team** pada **Signing & Capabilities**. Pastikan Bundle Identifier
-unik, pilih iPhone sebagai perangkat, lalu tekan **Run**. Alternatifnya gunakan
+atur **Team** pada **Signing & Capabilities**, dan gunakan Bundle Identifier
+unik. Pilih iPhone sebagai perangkat lalu tekan **Run**, atau jalankan
 `flutter devices` dan `flutter run` dari terminal Mac.
 
 ### VS Code
 
-Pasang ekstensi **Flutter** (Dart akan ikut tersedia), pilih perangkat, lalu
-tekan **F5** untuk debug. Ketika `flutter run` aktif, tekan `r` atau simpan
-berkas untuk hot reload; `R` menjalankan hot restart.
+Pasang ekstensi Flutter (Dart akan ikut tersedia), pilih perangkat, lalu tekan
+**F5** untuk debug. Saat `flutter run` aktif, `r` atau menyimpan file melakukan
+hot reload; `R` melakukan hot restart.
 
-## Struktur proyek
+## Mengganti repository lokal dengan Firebase
 
-```text
-lib/
-  core/
-    constants/ router/ theme/ utils/ widgets/
-  features/
-    auth/ education/ home/ pickup/ profile/ rewards/
-    smart_scan/ waste_bank_directory/
-  main.dart
-  app.dart
-test/
-```
+1. Tambahkan `firebase_core`, `firebase_auth`, `cloud_firestore`, dan
+   `firebase_storage` sesuai kebutuhan. Konfigurasikan Firebase untuk Android
+   dan iOS melalui FlutterFire CLI; jangan commit file kredensial privat.
+2. Inisialisasi Firebase sebelum `runApp` di `lib/main.dart`.
+3. Implementasikan kontrak `AuthRepository` dengan Firebase Auth, lalu ganti
+   binding `authRepositoryProvider` di
+   `lib/features/auth/presentation/providers/auth_providers.dart`.
+4. Implementasikan `PickupOrderRepository` dan `RewardRepository` dengan
+   Firestore. Untuk poin, gunakan operasi transaksi Firestore agar debit,
+   saldo, dan klaim reward atomik serta tetap idempoten.
+5. Ganti `WasteBankRepository` dengan API mitra, `ScanHistoryRepository` dengan
+   Firestore/Storage, dan `EwalletPayoutService` dengan backend payment gateway.
+   Jangan menaruh secret e-wallet atau service-account key di aplikasi mobile.
+6. Tambahkan aturan Firestore/Storage berdasarkan UID, validasi server-side,
+   dan migrasikan data lokal secara bertahap.
 
-Setiap fitur akan menambah layer `data`, `domain`, dan `presentation` saat
-fitur tersebut mulai diimplementasikan. Repository awal direncanakan memakai
-data lokal/dummy sebelum integrasi backend.
+Kontrak dan implementasi lokal yang menjadi titik integrasi:
+`AuthRepository`, `PickupOrderRepository`, `WasteBankRepository`,
+`RewardRepository`, `PointsService`, dan `EwalletPayoutService`.
 
-Direktori bank sampah menggunakan lokasi perangkat dan data mitra dummy di
-sekitar lokasi tersebut; penggantian ke API bank sampah dapat dilakukan melalui
-`WasteBankRepository`. Autentikasi demo menyimpan sesi aktif, tetapi
-akun/kata sandi mock hanya berada di memori proses. Gunakan Firebase Auth untuk
-akun persisten dan produksi.
-
-## Analisis dan test
+## Testing dan analisis
 
 ```shell
 flutter analyze
@@ -109,14 +110,60 @@ flutter test
 flutter build apk --debug
 ```
 
-GitHub Actions menjalankan `flutter pub get`, analyze, test, dan build APK debug
-pada setiap push serta pull request.
+Test mencakup validasi auth, navigasi, edukasi/kuis, pengaturan tema, pemesanan,
+transaksi poin, level, voucher, dan pembatalan. Saran integration test tambahan
+di `integration_test/`: registrasi dan login; buka Smart Scan lalu pilih foto;
+buat pesanan pickup dan majukan status sampai selesai; pastikan poin bertambah
+dan dapat ditukar. Jalankan pada emulator/perangkat dengan
+`flutter test integration_test`.
+
+## CI/CD
+
+GitHub Actions menjalankan `flutter pub get`, `flutter analyze`, `flutter test`,
+dan build APK debug pada setiap push dan pull request. APK debug diunggah
+sebagai artifact `ecotrash-debug-apk` selama tujuh hari. Workflow manual
+memiliki opsi membangun AAB rilis bertanda tangan.
+
+## Signing Android
+
+Buat keystore upload lokal dan simpan di lokasi yang aman:
+
+```shell
+keytool -genkeypair -v -keystore android/app/upload-keystore.jks `
+  -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+```
+
+Pada PowerShell, tanda backtick menyambung baris; perintah juga dapat dijalankan
+dalam satu baris. Buat `android/key.properties` secara lokal (sudah di-ignore):
+
+```properties
+storeFile=upload-keystore.jks
+storePassword=ISI_PASSWORD_STORE
+keyAlias=upload
+keyPassword=ISI_PASSWORD_KEY
+```
+
+Jangan commit file `.jks`, `.keystore`, atau `key.properties`. Untuk workflow
+manual rilis, tambahkan GitHub Actions Secrets:
+`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
+dan `ANDROID_KEY_PASSWORD`. `ANDROID_KEYSTORE_BASE64` adalah isi keystore
+terenkode Base64; simpan langsung sebagai secret, jangan cetak atau masukkan ke
+source control. Job rilis mendekodenya sementara di runner dan mengunggah
+artifact `ecotrash-release-aab`.
+
+Build lokal setelah `key.properties` diisi:
+
+```shell
+flutter build apk --release
+# atau
+flutter build appbundle --release
+```
+
+Simpan salinan keystore dan password di password manager/backup aman. Kehilangan
+upload key dapat menghambat pembaruan aplikasi yang sudah dipublikasikan.
 
 ## Git
 
 Gunakan `main` untuk rilis, `develop` untuk integrasi, dan
-`feature/nama-fitur` untuk pengembangan fitur. Contoh commit awal:
-
-```text
-chore: initial project setup
-```
+`feature/nama-fitur` untuk pekerjaan fitur. Format commit mengikuti Conventional
+Commits, misalnya `feat: add education quiz` atau `fix: persist theme choice`.
