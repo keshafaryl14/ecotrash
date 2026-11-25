@@ -7,7 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({
+      'eco_theme_preferences': '{"mode":"system","colorStyle":"dynamic","customSeed":774778,"earthAnimationsEnabled":false}',
+    });
   });
 
   testWidgets('first launch can swipe through onboarding and start', (

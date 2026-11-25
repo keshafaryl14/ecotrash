@@ -2,6 +2,10 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:ecotrash/core/constants/app_constants.dart';
+import 'package:ecotrash/core/animations/recycle_loader.dart';
+import 'package:ecotrash/core/animations/scan_pulse.dart';
+import 'package:ecotrash/core/theme/theme_controller.dart';
+import 'package:ecotrash/core/widgets/eco_states.dart';
 import 'package:ecotrash/features/smart_scan/domain/entities/scan_record.dart';
 import 'package:ecotrash/features/smart_scan/domain/entities/waste_classification.dart';
 import 'package:ecotrash/features/smart_scan/domain/repositories/scan_history_repository.dart';
@@ -261,6 +265,7 @@ class _SmartScanPageState extends ConsumerState<SmartScanPage>
   @override
   Widget build(BuildContext context) {
     final history = ref.watch(scanHistoryProvider);
+    final animationsEnabled = ref.watch(earthAnimationsEnabledProvider);
     final controller = _cameraController;
 
     return Scaffold(
@@ -288,10 +293,10 @@ class _SmartScanPageState extends ConsumerState<SmartScanPage>
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 18),
-          _buildCameraPreview(context, controller),
+          _buildCameraPreview(context, controller, animationsEnabled),
           const SizedBox(height: 14),
           if (_isProcessing) ...[
-            const LinearProgressIndicator(),
+            const LinearProgressIndicator(minHeight: 4),
             const SizedBox(height: 8),
             const Text(
               'Menganalisis foto dan menyimpan hasil...',
@@ -338,16 +343,22 @@ class _SmartScanPageState extends ConsumerState<SmartScanPage>
           history.when(
             loading: () => const Padding(
               padding: EdgeInsets.all(20),
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(
+                child: RecycleLoader(semanticsLabel: 'Memuat riwayat scan'),
+              ),
             ),
             error: (error, stackTrace) => _HistoryMessage(
               icon: Icons.error_outline,
               message: 'Riwayat scan gagal dimuat: $error',
             ),
             data: (records) => records.isEmpty
-                ? const _HistoryMessage(
-                    icon: Icons.photo_camera_back_outlined,
-                    message: 'Belum ada riwayat scan. Hasil scan akan tampil di sini.',
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: EcoEmptyState(
+                      title: 'Belum ada riwayat scan',
+                      message: 'Hasil scan akan tampil di sini.',
+                      illustration: EcoEmptyIllustration.emptyBin,
+                    ),
                   )
                 : Column(
                     children: [
@@ -364,11 +375,14 @@ class _SmartScanPageState extends ConsumerState<SmartScanPage>
   Widget _buildCameraPreview(
     BuildContext context,
     CameraController? controller,
+    bool animationsEnabled,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
     Widget content;
     if (_cameraInitializing) {
-      content = const Center(child: CircularProgressIndicator());
+      content = const Center(
+        child: RecycleLoader(semanticsLabel: 'Menyiapkan kamera'),
+      );
     } else if (!_cameraPermissionGranted) {
       content = _PermissionPrompt(
         permanentlyDenied: _cameraPermanentlyDenied,
@@ -397,9 +411,16 @@ class _SmartScanPageState extends ConsumerState<SmartScanPage>
               content,
               if (_isProcessing)
                 ColoredBox(
-                  color: Colors.black.withValues(alpha: 0.45),
-                  child: const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
+                  color: colorScheme.scrim.withValues(alpha: 0.45),
+                  child: Center(
+                    child: ScanPulse(
+                      size: 170,
+                      enabled: animationsEnabled,
+                      child: const RecycleLoader(
+                        size: 56,
+                        semanticsLabel: 'Menganalisis gambar',
+                      ),
+                    ),
                   ),
                 ),
             ],

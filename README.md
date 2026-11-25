@@ -11,6 +11,10 @@ Material 3, Riverpod, dan GoRouter.
 - Onboarding, autentikasi lokal, dan profil dengan ubah nama serta tema terang,
   gelap, atau mengikuti sistem.
 - Beranda dengan saldo poin aktual, pintasan fitur, dan tips pemilahan.
+- Material You: warna sistem dinamis pada Android yang mendukungnya, fallback
+  palet Hijau Bumi, empat palet pilihan, serta mode terang, gelap, dan AMOLED.
+- Komponen lingkungan reusable dan animasi ilustrasi buatan Flutter; animasi
+  dapat dimatikan dari Profil dan otomatis menghormati pengaturan reduce motion.
 - Smart Scan melalui kamera/galeri, hasil klasifikasi mock, panduan penanganan,
   dan riwayat lokal. Model ML belum dipasang.
 - Direktori OpenStreetMap dengan lokasi GPS, pencarian, filter, dan sepuluh
@@ -48,6 +52,12 @@ test/
 State dikelola dengan Riverpod, navigasi dengan GoRouter. `shared_preferences` dipakai untuk prototipe lokal. Tarif, bonus, level, batas
 penukaran, masa berlaku voucher, dan estimasi CO₂ dipusatkan di
 `lib/features/rewards/domain/rewards_config.dart`.
+
+Preferensi tema, seed warna, mode AMOLED, dan pilihan Animasi Bumi disimpan lokal.
+Style Guide khusus debug dapat dibuka melalui `/debug/style-guide`; halaman ini
+memperlihatkan role warna Material, tipografi, komponen, dan ilustrasi. Animasi
+tidak memakai aset Lottie/Rive atau font eksternal, sehingga seluruh ilustrasi
+tetap berbasis kode dan mengikuti opsi aksesibilitas perangkat.
 
 ## Aturan poin dan Rewards
 
@@ -132,8 +142,10 @@ flutter test
 flutter build apk --debug
 ```
 
-Test mencakup validasi auth, navigasi, edukasi/kuis, pengaturan tema, pemesanan,
-transaksi poin, level, voucher, dan pembatalan. Saran integration test tambahan
+Test mencakup validasi auth, navigasi, edukasi/kuis, pengaturan tema, skema
+warna, animasi, pemesanan, transaksi poin, level, voucher, dan pembatalan.
+Golden tema dapat diperbarui dengan `flutter test --update-goldens
+test/core/app_theme_golden_test.dart`. Saran integration test tambahan
 di `integration_test/`: registrasi dan login; buka Smart Scan lalu pilih foto;
 buat pesanan pickup dan majukan status sampai selesai; pastikan poin bertambah
 dan dapat ditukar. Jalankan pada emulator/perangkat dengan

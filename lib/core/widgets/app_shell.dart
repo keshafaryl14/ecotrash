@@ -1,8 +1,10 @@
 import 'package:ecotrash/core/constants/app_constants.dart';
+import 'package:ecotrash/core/theme/theme_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({
     required this.currentLocation,
     required this.child,
@@ -41,7 +43,10 @@ class AppShell extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final animationsEnabled =
+        ref.watch(earthAnimationsEnabledProvider) &&
+        !MediaQuery.of(context).disableAnimations;
     final selectedIndex = _destinations.indexWhere(
       (destination) =>
           destination.path == currentLocation ||
@@ -59,7 +64,16 @@ class AppShell extends StatelessWidget {
         destinations: [
           for (final destination in _destinations)
             NavigationDestination(
-              icon: Icon(destination.icon),
+              icon: AnimatedScale(
+                scale: destination.path == _selectedPath(selectedIndex)
+                    ? 1.16
+                    : 1,
+                duration: animationsEnabled
+                    ? const Duration(milliseconds: 220)
+                    : Duration.zero,
+                curve: Curves.easeOutCubic,
+                child: Icon(destination.icon),
+              ),
               label: destination.label,
             ),
         ],
@@ -69,6 +83,9 @@ class AppShell extends StatelessWidget {
       ),
     );
   }
+
+  String _selectedPath(int index) =>
+      index < 0 ? AppRoutes.home : _destinations[index].path;
 }
 
 class _AppDestination {

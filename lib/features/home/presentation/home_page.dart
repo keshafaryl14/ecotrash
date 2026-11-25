@@ -1,5 +1,11 @@
 import 'package:ecotrash/core/constants/app_constants.dart';
+import 'package:ecotrash/core/animations/growing_plant.dart';
+import 'package:ecotrash/core/animations/points_burst.dart';
+import 'package:ecotrash/core/animations/recycle_loader.dart';
+import 'package:ecotrash/core/animations/sun_cloud_banner.dart';
+import 'package:ecotrash/core/animations/water_ripple.dart';
 import 'package:ecotrash/core/services/points_providers.dart';
+import 'package:ecotrash/core/theme/theme_controller.dart';
 import 'package:ecotrash/features/auth/domain/entities/auth_user.dart';
 import 'package:ecotrash/features/auth/presentation/auth_error_message.dart';
 import 'package:ecotrash/features/auth/presentation/providers/auth_providers.dart';
@@ -85,10 +91,17 @@ class _HomeContent extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final points = ref.watch(pointsBalanceProvider);
     final impact = ref.watch(profileStatsProvider);
+    final animationsEnabled = ref.watch(earthAnimationsEnabledProvider);
 
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
+        SunCloudBanner(
+          title: 'Hai, Sahabat Bumi!',
+          subtitle: 'Setiap langkah kecil ikut merawat bumi.',
+          enabled: animationsEnabled,
+        ),
+        const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
@@ -119,50 +132,59 @@ class _HomeContent extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 24),
-        Card(
-          color: colorScheme.primaryContainer,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.eco_outlined,
-                  size: 36,
-                  color: colorScheme.onPrimaryContainer,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Poin Eco kamu',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      points.when(
-                        loading: () =>
-                            const Text('Memuat…', key: Key('home-points')),
-                        error: (error, _) => Text(
-                          'Tidak tersedia',
-                          key: const Key('home-points'),
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        data: (value) => Text(
-                          '$value poin',
-                          key: const Key('home-points'),
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
+        PointsBurst(
+          points: points.asData?.value ?? 0,
+          enabled: animationsEnabled,
+          child: Card(
+            color: colorScheme.primaryContainer,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  GrowingPlant(
+                    size: 76,
+                    progress: 0.72,
+                    enabled: animationsEnabled,
                   ),
-                ),
-                IconButton(
-                  tooltip: 'Tukar poin',
-                  onPressed: () => context.go(AppRoutes.rewards),
-                  icon: const Icon(Icons.arrow_forward),
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Poin Eco kamu',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        points.when(
+                          loading: () =>
+                              const Text('Memuat…', key: Key('home-points')),
+                          error: (error, _) => Text(
+                            'Tidak tersedia',
+                            key: const Key('home-points'),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          data: (value) => TweenAnimationBuilder<int>(
+                            tween: IntTween(begin: 0, end: value),
+                            duration: const Duration(milliseconds: 650),
+                            curve: Curves.easeOutCubic,
+                            builder: (context, count, child) => Text(
+                              '$count poin',
+                              key: const Key('home-points'),
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Tukar poin',
+                    onPressed: () => context.go(AppRoutes.rewards),
+                    icon: const Icon(Icons.arrow_forward),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -170,7 +192,7 @@ class _HomeContent extends ConsumerWidget {
         impact.when(
           loading: () => const Card(
             child: ListTile(
-              leading: CircularProgressIndicator(),
+              leading: RecycleLoader(size: 30, semanticsLabel: 'Memuat dampak'),
               title: Text('Memuat dampak lingkungan…'),
             ),
           ),
@@ -220,6 +242,7 @@ class _HomeContent extends ConsumerWidget {
             final shortcut = HomePage._shortcuts[index];
             return _ShortcutCard(
               shortcut: shortcut,
+              animationsEnabled: animationsEnabled,
               onTap: () => context.go(shortcut.route),
             );
           },
@@ -272,18 +295,25 @@ class _HomeContent extends ConsumerWidget {
 }
 
 class _ShortcutCard extends StatelessWidget {
-  const _ShortcutCard({required this.shortcut, required this.onTap});
+  const _ShortcutCard({
+    required this.shortcut,
+    required this.onTap,
+    required this.animationsEnabled,
+  });
 
   final _HomeShortcut shortcut;
   final VoidCallback onTap;
+  final bool animationsEnabled;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
-      child: InkWell(
+      child: WaterRipple(
+        enabled: animationsEnabled,
         onTap: onTap,
+        borderRadius: BorderRadius.circular(26),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(

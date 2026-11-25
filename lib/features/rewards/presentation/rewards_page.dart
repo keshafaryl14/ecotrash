@@ -1,6 +1,9 @@
 import 'package:ecotrash/core/constants/app_constants.dart';
+import 'package:ecotrash/core/animations/growing_plant.dart';
+import 'package:ecotrash/core/animations/points_burst.dart';
 import 'package:ecotrash/core/services/points_providers.dart';
 import 'package:ecotrash/core/theme/app_dimensions.dart';
+import 'package:ecotrash/core/theme/theme_controller.dart';
 import 'package:ecotrash/core/widgets/app_state_widgets.dart';
 import 'package:ecotrash/features/rewards/domain/entities/reward.dart';
 import 'package:ecotrash/features/rewards/domain/entities/reward_level.dart';
@@ -15,6 +18,7 @@ class RewardsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final balance = ref.watch(pointsBalanceProvider);
     final lifetime = ref.watch(lifetimePointsProvider);
+    final animationsEnabled = ref.watch(earthAnimationsEnabledProvider);
     final colors = Theme.of(context).colorScheme;
     return ListView(
       padding: const EdgeInsets.all(AppDimensions.pagePadding),
@@ -40,14 +44,26 @@ class RewardsPage extends ConsumerWidget {
             onAction: () => ref.invalidate(pointsBalanceProvider),
           ),
           data: (points) => lifetime.when(
-            loading: () => _BalanceCard(points: points, lifetime: points),
+            loading: () => _BalanceCard(
+              points: points,
+              lifetime: points,
+              animationsEnabled: animationsEnabled,
+            ),
             error: (error, _) => AppMessageState(
               icon: Icons.error_outline,
               message: 'Level gagal dimuat: $error',
               actionLabel: 'Coba lagi',
               onAction: () => ref.invalidate(lifetimePointsProvider),
             ),
-            data: (total) => _BalanceCard(points: points, lifetime: total),
+            data: (total) => PointsBurst(
+              points: points,
+              enabled: animationsEnabled,
+              child: _BalanceCard(
+                points: points,
+                lifetime: total,
+                animationsEnabled: animationsEnabled,
+              ),
+            ),
           ),
         ),
         const SizedBox(height: AppDimensions.space16),
@@ -153,10 +169,15 @@ class RewardsPage extends ConsumerWidget {
 }
 
 class _BalanceCard extends StatelessWidget {
-  const _BalanceCard({required this.points, required this.lifetime});
+  const _BalanceCard({
+    required this.points,
+    required this.lifetime,
+    required this.animationsEnabled,
+  });
 
   final int points;
   final int lifetime;
+  final bool animationsEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -167,54 +188,70 @@ class _BalanceCard extends StatelessWidget {
       color: colors.primaryContainer,
       child: Padding(
         padding: const EdgeInsets.all(AppDimensions.space20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Row(
-              children: [
-                Icon(Icons.eco_outlined, color: colors.onPrimaryContainer),
-                const SizedBox(width: AppDimensions.space8),
-                Text(
-                  'Saldo poin',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ],
-            ),
-            TweenAnimationBuilder<int>(
-              tween: IntTween(begin: 0, end: points),
-              duration: const Duration(milliseconds: 600),
-              builder: (context, value, child) => Text(
-                '$value poin',
-                key: const Key('rewards-points-balance'),
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: colors.onPrimaryContainer,
-                  fontWeight: FontWeight.bold,
-                ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.eco_outlined,
+                        color: colors.onPrimaryContainer,
+                      ),
+                      const SizedBox(width: AppDimensions.space8),
+                      Text(
+                        'Saldo poin',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ],
+                  ),
+                  TweenAnimationBuilder<int>(
+                    tween: IntTween(begin: 0, end: points),
+                    duration: const Duration(milliseconds: 600),
+                    builder: (context, value, child) => Text(
+                      '$value poin',
+                      key: const Key('rewards-points-balance'),
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(
+                            color: colors.onPrimaryContainer,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ),
+                  const SizedBox(height: AppDimensions.space12),
+                  Row(
+                    children: [
+                      Text('${level.badge} ${level.name}'),
+                      const Spacer(),
+                      Text('$lifetime total poin'),
+                    ],
+                  ),
+                  const SizedBox(height: AppDimensions.space8),
+                  LinearProgressIndicator(
+                    key: const Key('rewards-level-progress'),
+                    value: level.progressFor(lifetime),
+                    minHeight: AppDimensions.space8,
+                    borderRadius: BorderRadius.circular(AppDimensions.space8),
+                  ),
+                  const SizedBox(height: AppDimensions.space4),
+                  Text(
+                    nextLevelPoints == null
+                        ? 'Level tertinggi telah tercapai!'
+                        : '$nextLevelPoints poin lagi menuju '
+                              '${RewardLevel.levels[RewardLevel.levels.indexOf(level) + 1].name}',
+                    key: const Key('rewards-level-next'),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: AppDimensions.space12),
-            Row(
-              children: [
-                Text('${level.badge} ${level.name}'),
-                const Spacer(),
-                Text('$lifetime total poin'),
-              ],
-            ),
-            const SizedBox(height: AppDimensions.space8),
-            LinearProgressIndicator(
-              key: const Key('rewards-level-progress'),
-              value: level.progressFor(lifetime),
-              minHeight: AppDimensions.space8,
-              borderRadius: BorderRadius.circular(AppDimensions.space8),
-            ),
-            const SizedBox(height: AppDimensions.space4),
-            Text(
-              nextLevelPoints == null
-                  ? 'Level tertinggi telah tercapai!'
-                  : '$nextLevelPoints poin lagi menuju '
-                        '${RewardLevel.levels[RewardLevel.levels.indexOf(level) + 1].name}',
-              key: const Key('rewards-level-next'),
-              style: Theme.of(context).textTheme.bodySmall,
+            GrowingPlant(
+              progress: level.progressFor(lifetime),
+              stage: RewardLevel.levels.indexOf(level),
+              size: 96,
+              enabled: animationsEnabled,
             ),
           ],
         ),

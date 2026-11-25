@@ -1,14 +1,28 @@
+import 'package:ecotrash/core/theme/theme_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AppLoadingSkeleton extends StatelessWidget {
+class AppLoadingSkeleton extends ConsumerWidget {
   const AppLoadingSkeleton({required this.label, this.rows = 3, super.key});
 
   final String label;
   final int rows;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final color = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final animate =
+        ref.watch(earthAnimationsEnabledProvider) &&
+        !MediaQuery.of(context).disableAnimations;
+    Widget shimmer(Widget child) => animate
+        ? child
+              .animate(onPlay: (controller) => controller.repeat())
+              .shimmer(
+                duration: 1800.ms,
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+              )
+        : child;
     return Semantics(
       liveRegion: true,
       label: label,
@@ -24,12 +38,14 @@ class AppLoadingSkeleton extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: color,
-                            shape: BoxShape.circle,
+                        shimmer(
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: color,
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -37,21 +53,25 @@ class AppLoadingSkeleton extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                height: 16,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: color,
-                                  borderRadius: BorderRadius.circular(8),
+                              shimmer(
+                                Container(
+                                  height: 16,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: color,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              Container(
-                                height: 12,
-                                width: 170,
-                                decoration: BoxDecoration(
-                                  color: color,
-                                  borderRadius: BorderRadius.circular(8),
+                              shimmer(
+                                Container(
+                                  height: 12,
+                                  width: 170,
+                                  decoration: BoxDecoration(
+                                    color: color,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
                               ),
                             ],

@@ -25,6 +25,7 @@ abstract final class AppRoutes {
   static const educationArticle = '/education/article/:slug';
   static const educationQuiz = '/education/quiz';
   static const profile = '/profile';
+  static const styleGuide = '/debug/style-guide';
 }
 
 abstract final class AppStorageKeys {

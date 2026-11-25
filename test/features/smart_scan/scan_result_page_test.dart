@@ -3,9 +3,17 @@ import 'dart:typed_data';
 import 'package:ecotrash/features/smart_scan/domain/entities/waste_classification.dart';
 import 'package:ecotrash/features/smart_scan/presentation/scan_result_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({
+      'eco_theme_preferences': '{"mode":"system","colorStyle":"dynamic","customSeed":774778,"earthAnimationsEnabled":false}',
+    });
+  });
+
   testWidgets('shows classification and guidance when confidence is low', (
     tester,
   ) async {
@@ -15,20 +23,23 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: ScanResultPage(
-          args: ScanResultPageArgs(
-            imageBytes: Uint8List.fromList([1]),
-            classification: const WasteClassification(
-              category: WasteCategory.hazardous,
-              confidence: 0.42,
-              specificType: 'Baterai bekas',
-              sortingInstructions: 'Pisahkan dari sampah rumah tangga lainnya.',
-              processingInstructions:
-                  'Serahkan ke fasilitas pengelola limbah B3.',
-              hasEconomicValue: false,
+      ProviderScope(
+        child: MaterialApp(
+          home: ScanResultPage(
+            args: ScanResultPageArgs(
+              imageBytes: Uint8List.fromList([1]),
+              classification: const WasteClassification(
+                category: WasteCategory.hazardous,
+                confidence: 0.42,
+                specificType: 'Baterai bekas',
+                sortingInstructions:
+                    'Pisahkan dari sampah rumah tangga lainnya.',
+                processingInstructions:
+                    'Serahkan ke fasilitas pengelola limbah B3.',
+                hasEconomicValue: false,
+              ),
+              historySaved: true,
             ),
-            historySaved: true,
           ),
         ),
       ),
@@ -50,20 +61,22 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: ScanResultPage(
-          args: ScanResultPageArgs(
-            imageBytes: Uint8List.fromList([1]),
-            classification: const WasteClassification(
-              category: WasteCategory.inorganic,
-              confidence: 0.9,
-              specificType: 'Kardus',
-              sortingInstructions: 'Pastikan kardus kering.',
-              processingInstructions: 'Setorkan ke bank sampah.',
-              hasEconomicValue: true,
+      ProviderScope(
+        child: MaterialApp(
+          home: ScanResultPage(
+            args: ScanResultPageArgs(
+              imageBytes: Uint8List.fromList([1]),
+              classification: const WasteClassification(
+                category: WasteCategory.inorganic,
+                confidence: 0.9,
+                specificType: 'Kardus',
+                sortingInstructions: 'Pastikan kardus kering.',
+                processingInstructions: 'Setorkan ke bank sampah.',
+                hasEconomicValue: true,
+              ),
+              historySaved: false,
+              historyError: 'Riwayat scan tidak dapat disimpan.',
             ),
-            historySaved: false,
-            historyError: 'Riwayat scan tidak dapat disimpan.',
           ),
         ),
       ),

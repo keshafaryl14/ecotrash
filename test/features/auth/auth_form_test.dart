@@ -15,7 +15,7 @@ void main() {
   testWidgets('login and registration show Indonesian validation errors', (
     tester,
   ) async {
-    await tester.pumpWidget(const ProviderScope(child: EcoTrashApp()));
+    await tester.pumpWidget(_testApp());
     await tester.pumpAndSettle();
 
     expect(find.text('Masuk'), findsWidgets);
@@ -49,7 +49,7 @@ void main() {
   });
 
   testWidgets('login displays an authentication error', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: EcoTrashApp()));
+    await tester.pumpWidget(_testApp());
     await tester.pumpAndSettle();
 
     await tester.enterText(
@@ -69,7 +69,7 @@ void main() {
   testWidgets(
     'registration saves the session and opens the personalized home',
     (tester) async {
-      await tester.pumpWidget(const ProviderScope(child: EcoTrashApp()));
+      await tester.pumpWidget(_testApp());
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Belum punya akun? Daftar'));
@@ -98,7 +98,11 @@ void main() {
       await tester.tap(find.byKey(const Key('home-profile')));
       await tester.pumpAndSettle();
       final signOut = find.byKey(const Key('profile-sign-out'));
-      await tester.scrollUntilVisible(signOut, 300);
+      await tester.scrollUntilVisible(
+        signOut,
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(signOut);
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('profile-sign-out-confirm')));
@@ -119,3 +123,10 @@ void main() {
     },
   );
 }
+
+Widget _testApp() => const ProviderScope(
+  child: MediaQuery(
+    data: MediaQueryData(disableAnimations: true),
+    child: EcoTrashApp(),
+  ),
+);

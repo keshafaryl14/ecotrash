@@ -1,4 +1,6 @@
+import 'package:ecotrash/core/animations/falling_leaves.dart';
 import 'package:ecotrash/core/theme/app_dimensions.dart';
+import 'package:ecotrash/core/theme/theme_controller.dart';
 import 'package:ecotrash/core/widgets/app_state_widgets.dart';
 import 'package:ecotrash/features/rewards/domain/entities/reward.dart';
 import 'package:ecotrash/features/rewards/domain/rewards_config.dart';
@@ -28,6 +30,7 @@ class _RewardVoucherDetailPageState
 
   @override
   Widget build(BuildContext context) {
+    final animationsEnabled = ref.watch(earthAnimationsEnabledProvider);
     ref.listen<String?>(rewardsOperationMessageProvider, (previous, next) {
       if (next != null) {
         ScaffoldMessenger.of(context)
@@ -54,18 +57,29 @@ class _RewardVoucherDetailPageState
             message: 'Voucher tidak ditemukan.',
           );
         }
-        return _buildVoucher(context, matches.first);
+        return _buildVoucher(context, matches.first, animationsEnabled);
       },
     );
   }
 
-  Widget _buildVoucher(BuildContext context, RewardVoucher voucher) {
+  Widget _buildVoucher(
+    BuildContext context,
+    RewardVoucher voucher,
+    bool animationsEnabled,
+  ) {
     final colors = Theme.of(context).colorScheme;
     final isActive = voucher.status == RewardVoucherStatus.active;
     final isEwallet = voucher.ewalletProvider != null;
     return ListView(
       padding: const EdgeInsets.all(AppDimensions.pagePadding),
       children: [
+        if (voucher.status == RewardVoucherStatus.used)
+          FallingLeaves(
+            width: 240,
+            height: 72,
+            count: 8,
+            enabled: animationsEnabled,
+          ),
         Text(voucher.title, style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: AppDimensions.space8),
         Chip(label: Text(_statusLabel(voucher.status))),

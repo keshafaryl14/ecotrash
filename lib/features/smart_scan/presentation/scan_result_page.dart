@@ -1,9 +1,12 @@
 import 'dart:typed_data';
 
 import 'package:ecotrash/core/constants/app_constants.dart';
+import 'package:ecotrash/core/theme/eco_colors.dart';
+import 'package:ecotrash/core/theme/theme_controller.dart';
 import 'package:ecotrash/features/smart_scan/domain/entities/waste_classification.dart';
 import 'package:ecotrash/features/pickup/presentation/pickup_order_form_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class ScanResultPageArgs {
@@ -20,15 +23,19 @@ class ScanResultPageArgs {
   final String? historyError;
 }
 
-class ScanResultPage extends StatelessWidget {
+class ScanResultPage extends ConsumerWidget {
   const ScanResultPage({required this.args, super.key});
 
   final ScanResultPageArgs args;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final classification = args.classification;
-    final colors = _CategoryColors.from(context, classification.category);
+    final theme = Theme.of(context);
+    final eco =
+        theme.extension<EcoColors>() ?? EcoColors.from(theme.colorScheme);
+    final colors = _categoryColors(eco, classification.category);
+    final animationsEnabled = ref.watch(earthAnimationsEnabledProvider);
     final confidencePercent = (classification.confidence * 100).round();
 
     return Scaffold(
@@ -71,7 +78,22 @@ class ScanResultPage extends StatelessWidget {
               padding: const EdgeInsets.all(18),
               child: Row(
                 children: [
-                  Icon(colors.icon, color: colors.foreground, size: 30),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: animationsEnabled ? 0.6 : 1, end: 1),
+                    duration:
+                        animationsEnabled &&
+                            !MediaQuery.of(context).disableAnimations
+                        ? const Duration(milliseconds: 450)
+                        : Duration.zero,
+                    curve: Curves.easeOutBack,
+                    builder: (context, scale, child) =>
+                        Transform.scale(scale: scale, child: child),
+                    child: Icon(
+                      _categoryIcon(classification.category),
+                      size: 28,
+                      color: colors.foreground,
+                    ),
+                  ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -189,37 +211,33 @@ extension on WasteCategory {
   };
 }
 
-class _CategoryColors {
-  const _CategoryColors({
-    required this.icon,
-    required this.container,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final Color container;
-  final Color foreground;
-
-  factory _CategoryColors.from(BuildContext context, WasteCategory category) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return switch (category) {
-      WasteCategory.organic => _CategoryColors(
-        icon: Icons.compost_outlined,
-        container: colorScheme.primaryContainer,
-        foreground: colorScheme.onPrimaryContainer,
+_ScanCategoryColors _categoryColors(EcoColors colors, WasteCategory category) =>
+    switch (category) {
+      WasteCategory.organic => _ScanCategoryColors(
+        colors.organicContainer,
+        colors.onOrganicContainer,
       ),
-      WasteCategory.inorganic => _CategoryColors(
-        icon: Icons.recycling_outlined,
-        container: colorScheme.secondaryContainer,
-        foreground: colorScheme.onSecondaryContainer,
+      WasteCategory.inorganic => _ScanCategoryColors(
+        colors.inorganicContainer,
+        colors.onInorganicContainer,
       ),
-      WasteCategory.hazardous => _CategoryColors(
-        icon: Icons.warning_amber_outlined,
-        container: colorScheme.errorContainer,
-        foreground: colorScheme.onErrorContainer,
+      WasteCategory.hazardous => _ScanCategoryColors(
+        colors.hazardousContainer,
+        colors.onHazardousContainer,
       ),
     };
-  }
+
+IconData _categoryIcon(WasteCategory category) => switch (category) {
+  WasteCategory.organic => Icons.compost_outlined,
+  WasteCategory.inorganic => Icons.recycling_outlined,
+  WasteCategory.hazardous => Icons.warning_amber_outlined,
+};
+
+class _ScanCategoryColors {
+  const _ScanCategoryColors(this.container, this.foreground);
+
+  final Color container;
+  final Color foreground;
 }
 
 class _InstructionCard extends StatelessWidget {

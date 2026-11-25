@@ -1,3 +1,6 @@
+import 'package:ecotrash/core/animations/recycle_loader.dart';
+import 'package:ecotrash/core/animations/truck_route.dart';
+import 'package:ecotrash/core/theme/theme_controller.dart';
 import 'package:ecotrash/features/pickup/domain/entities/pickup_order.dart';
 import 'package:ecotrash/features/pickup/domain/repositories/pickup_order_repository.dart';
 import 'package:ecotrash/features/pickup/presentation/providers/pickup_order_providers.dart';
@@ -16,7 +19,9 @@ class PickupOrderDetailPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Detail Penjemputan')),
       body: orders.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(
+          child: RecycleLoader(semanticsLabel: 'Memuat detail penjemputan'),
+        ),
         error: (error, stackTrace) => Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -45,6 +50,7 @@ class _PickupOrderDetailContent extends ConsumerWidget {
     final date = MaterialLocalizations.of(context)
         .formatMediumDate(order.pickupAt);
     final statusIndex = order.status.index.clamp(0, 3);
+    final animationsEnabled = ref.watch(earthAnimationsEnabledProvider);
 
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -80,6 +86,8 @@ class _PickupOrderDetailContent extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         Text('Lini masa', style: Theme.of(context).textTheme.titleLarge),
+        if (order.status != PickupOrderStatus.cancelled)
+          TruckRoute(progress: statusIndex / 3, enabled: animationsEnabled),
         const SizedBox(height: 8),
         if (order.status == PickupOrderStatus.cancelled)
           const ListTile(

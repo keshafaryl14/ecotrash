@@ -1,4 +1,7 @@
 import 'package:ecotrash/core/constants/app_constants.dart';
+import 'package:ecotrash/core/animations/earth_globe.dart';
+import 'package:ecotrash/core/animations/falling_leaves.dart';
+import 'package:ecotrash/core/theme/theme_controller.dart';
 import 'package:ecotrash/features/onboarding/domain/repositories/onboarding_repository.dart';
 import 'package:ecotrash/features/onboarding/presentation/providers/onboarding_providers.dart';
 import 'package:flutter/material.dart';
@@ -62,6 +65,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     final completionState = ref.watch(onboardingControllerProvider);
+    final animationsEnabled = ref.watch(earthAnimationsEnabledProvider);
     final isLoading = completionState.isLoading;
     final error = completionState.error;
     final errorMessage = error == null
@@ -92,33 +96,67 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 itemBuilder: (context, index) {
                   final page = _pages[index];
                   final colorScheme = Theme.of(context).colorScheme;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 24,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  return AnimatedContainer(
+                    duration: MediaQuery.of(context).disableAnimations
+                        ? Duration.zero
+                        : const Duration(milliseconds: 400),
+                    curve: Curves.easeOutCubic,
+                    color: index.isEven
+                        ? colorScheme.surface
+                        : colorScheme.surfaceContainerLow,
+                    child: Stack(
+                      alignment: Alignment.center,
                       children: [
-                        CircleAvatar(
-                          radius: 52,
-                          backgroundColor: colorScheme.secondaryContainer,
-                          foregroundColor: colorScheme.onSecondaryContainer,
-                          child: Icon(page.icon, size: 48),
+                        Positioned(
+                          top: 16,
+                          right: 0,
+                          child: FallingLeaves(
+                            width: 180,
+                            height: 150,
+                            count: 6,
+                            enabled: animationsEnabled,
+                          ),
                         ),
-                        const SizedBox(height: 32),
-                        Text(
-                          page.title,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          page.description,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyLarge
-                              ?.copyWith(color: colorScheme.onSurfaceVariant),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 24,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (index == 0)
+                                EarthGlobe(
+                                  size: 176,
+                                  enabled: animationsEnabled,
+                                )
+                              else
+                                CircleAvatar(
+                                  radius: 52,
+                                  backgroundColor:
+                                      colorScheme.secondaryContainer,
+                                  foregroundColor:
+                                      colorScheme.onSecondaryContainer,
+                                  child: Icon(page.icon, size: 48),
+                                ),
+                              const SizedBox(height: 32),
+                              Text(
+                                page.title,
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                page.description,
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyLarge
+                                    ?.copyWith(
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

@@ -30,6 +30,7 @@ void main() {
       AppStorageKeys.authUserId: 'kesha@example.com',
       AppStorageKeys.authUserName: 'Kesha',
       AppStorageKeys.authUserEmail: 'kesha@example.com',
+      'eco_theme_preferences': '{"mode":"system","colorStyle":"dynamic","customSeed":774778,"earthAnimationsEnabled":false}',
     });
   });
 
@@ -87,7 +88,16 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('profile-sign-out')), findsOneWidget);
     final signOut = find.byKey(const Key('profile-sign-out'));
-    await tester.scrollUntilVisible(signOut, 300);
+    await tester.scrollUntilVisible(
+      signOut,
+      300,
+      scrollable: find
+          .descendant(
+            of: find.byType(ListView).last,
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
     await tester.tap(signOut);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('profile-sign-out-confirm')));

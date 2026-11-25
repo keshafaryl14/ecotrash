@@ -1,5 +1,6 @@
 import 'package:ecotrash/core/constants/app_constants.dart';
-import 'package:ecotrash/core/theme/theme_mode_provider.dart';
+import 'package:ecotrash/core/theme/color_schemes.dart';
+import 'package:ecotrash/core/theme/theme_controller.dart';
 import 'package:ecotrash/core/widgets/app_state_widgets.dart';
 import 'package:ecotrash/features/auth/domain/entities/auth_user.dart';
 import 'package:ecotrash/features/auth/presentation/auth_error_message.dart';
@@ -9,6 +10,7 @@ import 'package:ecotrash/features/profile/presentation/providers/profile_provide
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/foundation.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -47,8 +49,8 @@ class _ProfileContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stats = ref.watch(profileStatsProvider);
-    final themeMode = ref.watch(themeModeProvider);
-    final savedTheme = themeMode.asData?.value ?? ThemeMode.system;
+    final themeState = ref.watch(themeControllerProvider);
+    final preferences = themeState.asData?.value ?? const ThemePreferences();
 
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -112,12 +114,12 @@ class _ProfileContent extends ConsumerWidget {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 8),
-        if (themeMode.hasError)
+        if (themeState.hasError)
           AppMessageState(
             icon: Icons.error_outline,
-            message: 'Pengaturan tema gagal dimuat: ${themeMode.error}',
+            message: 'Pengaturan tema gagal dimuat: ${themeState.error}',
             actionLabel: 'Coba lagi',
-            onAction: () => ref.invalidate(themeModeProvider),
+            onAction: () => ref.invalidate(themeControllerProvider),
           )
         else
           Card(
@@ -126,35 +128,135 @@ class _ProfileContent extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Pilih tema'),
+                  Text(
+                    'Mode tema',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                   const SizedBox(height: 10),
-                  SegmentedButton<ThemeMode>(
+                  SegmentedButton<ThemeModeChoice>(
                     key: const Key('profile-theme-selector'),
                     segments: const [
                       ButtonSegment(
-                        value: ThemeMode.system,
-                        label: Text('Sistem'),
+                        value: ThemeModeChoice.system,
+                        label: Text('Ikuti sistem'),
                         icon: Icon(Icons.settings_suggest_outlined),
                       ),
                       ButtonSegment(
-                        value: ThemeMode.light,
+                        value: ThemeModeChoice.light,
                         label: Text('Terang'),
                         icon: Icon(Icons.light_mode_outlined),
                       ),
                       ButtonSegment(
-                        value: ThemeMode.dark,
+                        value: ThemeModeChoice.dark,
                         label: Text('Gelap'),
                         icon: Icon(Icons.dark_mode_outlined),
                       ),
                     ],
-                    selected: {savedTheme},
+                    selected: {
+                      preferences.mode == ThemeModeChoice.amoled
+                          ? ThemeModeChoice.dark
+                          : preferences.mode,
+                    },
                     onSelectionChanged: (selection) =>
-                        _setTheme(context, ref, selection.first),
+                        _setMode(context, ref, selection.first),
+                  ),
+                  SwitchListTile.adaptive(
+                    key: const Key('profile-amoled-mode'),
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Hitam pekat (AMOLED)'),
+                    subtitle: const Text('Aktif saat mode gelap dipilih'),
+                    secondary: const Icon(Icons.brightness_2_outlined),
+                    value: preferences.amoled,
+                    onChanged: (enabled) => _setMode(
+                      context,
+                      ref,
+                      enabled ? ThemeModeChoice.amoled : ThemeModeChoice.dark,
+                    ),
+                  ),
+                  const Divider(),
+                  Text(
+                    'Gaya warna',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SegmentedButton<ThemeColorStyle>(
+                      key: const Key('profile-color-style-selector'),
+                      segments: const [
+                        ButtonSegment(
+                          value: ThemeColorStyle.dynamic,
+                          label: Text('Dinamis'),
+                        ),
+                        ButtonSegment(
+                          value: ThemeColorStyle.earth,
+                          label: Text('Hijau Bumi'),
+                        ),
+                        ButtonSegment(
+                          value: ThemeColorStyle.custom,
+                          label: Text('Pilih sendiri'),
+                        ),
+                      ],
+                      selected: {preferences.colorStyle},
+                      onSelectionChanged: (selection) =>
+                          _setColorStyle(context, ref, selection.first),
+                    ),
+                  ),
+                  if (preferences.colorStyle == ThemeColorStyle.dynamic)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        'Mengikuti wallpaper jika perangkat mendukung; '
+                        'selain itu memakai Hijau Bumi.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                  if (preferences.colorStyle == ThemeColorStyle.custom)
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        for (final seed in AppColorSchemes.palettes)
+                          ChoiceChip(
+                            key: Key('profile-seed-${seed.name}'),
+                            avatar: CircleAvatar(
+                              backgroundColor: seed.color,
+                              radius: 9,
+                            ),
+                            label: Text(seed.name),
+                            selected:
+                                preferences.customSeed == seed.color.toARGB32(),
+                            onSelected: (_) =>
+                                _setSeed(context, ref, seed.color.toARGB32()),
+                          ),
+                      ],
+                    ),
+                  const Divider(),
+                  SwitchListTile.adaptive(
+                    key: const Key('profile-earth-animations'),
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Animasi Bumi'),
+                    subtitle: const Text(
+                      'Matikan animasi dekoratif kapan saja',
+                    ),
+                    secondary: const Icon(Icons.animation_outlined),
+                    value: preferences.earthAnimationsEnabled,
+                    onChanged: (enabled) =>
+                        _setAnimations(context, ref, enabled),
                   ),
                 ],
               ),
             ),
           ),
+        if (kDebugMode) ...[
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            key: const Key('profile-style-guide'),
+            onPressed: () => context.push(AppRoutes.styleGuide),
+            icon: const Icon(Icons.palette_outlined),
+            label: const Text('Buka Style Guide'),
+          ),
+        ],
         const SizedBox(height: 20),
         FilledButton.tonalIcon(
           key: const Key('profile-sign-out'),
@@ -199,13 +301,56 @@ class _ProfileContent extends ConsumerWidget {
     }
   }
 
-  Future<void> _setTheme(
+  Future<void> _setMode(
     BuildContext context,
     WidgetRef ref,
-    ThemeMode mode,
+    ThemeModeChoice mode,
   ) async {
     try {
-      await ref.read(themeModeProvider.notifier).setThemeMode(mode);
+      await ref.read(themeControllerProvider.notifier).setMode(mode);
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.toString())));
+      }
+    }
+  }
+
+  Future<void> _setColorStyle(
+    BuildContext context,
+    WidgetRef ref,
+    ThemeColorStyle style,
+  ) async {
+    try {
+      await ref.read(themeControllerProvider.notifier).setColorStyle(style);
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.toString())));
+      }
+    }
+  }
+
+  Future<void> _setSeed(BuildContext context, WidgetRef ref, int seed) async {
+    try {
+      await ref.read(themeControllerProvider.notifier).setCustomSeed(seed);
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.toString())));
+      }
+    }
+  }
+
+  Future<void> _setAnimations(
+    BuildContext context,
+    WidgetRef ref,
+    bool enabled,
+  ) async {
+    try {
+      await ref
+          .read(themeControllerProvider.notifier)
+          .setEarthAnimationsEnabled(enabled);
     } catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context)
