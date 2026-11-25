@@ -1,4 +1,5 @@
 import 'package:ecotrash/core/constants/app_constants.dart';
+import 'package:ecotrash/core/widgets/eco_logo.dart';
 import 'package:ecotrash/features/auth/presentation/auth_error_message.dart';
 import 'package:ecotrash/features/auth/presentation/auth_form_validators.dart';
 import 'package:ecotrash/features/auth/presentation/providers/auth_providers.dart';
@@ -67,6 +68,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const Center(
+                      child: EcoLogo(
+                        size: 52,
+                        variant: EcoLogoVariant.horizontal,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     Text(
                       'Mulai perjalanan hijaumu',
                       textAlign: TextAlign.center,

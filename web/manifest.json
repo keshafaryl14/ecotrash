@@ -1,11 +1,11 @@
 {
-    "name": "aplikasi_ecotrash",
-    "short_name": "aplikasi_ecotrash",
+    "name": "EcoTrash",
+    "short_name": "EcoTrash",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F6FBF4",
+    "theme_color": "#2E7D32",
+    "description": "Pilah sampah, temukan bank sampah, dan kumpulkan poin bersama EcoTrash.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

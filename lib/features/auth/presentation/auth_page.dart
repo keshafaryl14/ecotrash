@@ -1,4 +1,5 @@
 import 'package:ecotrash/core/constants/app_constants.dart';
+import 'package:ecotrash/core/widgets/eco_logo.dart';
 import 'package:ecotrash/features/auth/presentation/auth_error_message.dart';
 import 'package:ecotrash/features/auth/presentation/auth_form_validators.dart';
 import 'package:ecotrash/features/auth/presentation/providers/auth_providers.dart';
@@ -61,10 +62,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(
-                      Icons.eco_outlined,
-                      size: 56,
-                      color: colorScheme.primary,
+                    const Center(
+                      child: EcoLogo(
+                        size: 52,
+                        variant: EcoLogoVariant.horizontal,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Text(

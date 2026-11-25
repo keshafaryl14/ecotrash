@@ -2,6 +2,7 @@ import 'package:ecotrash/core/constants/app_constants.dart';
 import 'package:ecotrash/core/theme/color_schemes.dart';
 import 'package:ecotrash/core/theme/theme_controller.dart';
 import 'package:ecotrash/core/widgets/app_state_widgets.dart';
+import 'package:ecotrash/core/widgets/eco_logo.dart';
 import 'package:ecotrash/features/auth/domain/entities/auth_user.dart';
 import 'package:ecotrash/features/auth/presentation/auth_error_message.dart';
 import 'package:ecotrash/features/auth/presentation/providers/auth_providers.dart';
@@ -49,6 +50,7 @@ class _ProfileContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stats = ref.watch(profileStatsProvider);
+    final packageInfo = ref.watch(appPackageInfoProvider);
     final themeState = ref.watch(themeControllerProvider);
     final preferences = themeState.asData?.value ?? const ThemePreferences();
 
@@ -257,6 +259,48 @@ class _ProfileContent extends ConsumerWidget {
             label: const Text('Buka Style Guide'),
           ),
         ],
+        const SizedBox(height: 20),
+        Text('Tentang aplikasi', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 8),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                const EcoLogo(size: 52, variant: EcoLogoVariant.horizontal),
+                const SizedBox(height: 8),
+                Text(
+                  'EcoTrash',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                packageInfo.when(
+                  loading: () => const Text('Memuat versi aplikasi…'),
+                  error: (error, stackTrace) =>
+                      const Text('Versi aplikasi tidak dapat dimuat.'),
+                  data: (info) => Text(
+                    'Versi ${info.version} (${info.buildNumber})',
+                    key: const Key('profile-app-version'),
+                  ),
+                ),
+                const Divider(),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.privacy_tip_outlined),
+                  title: const Text('Kebijakan privasi'),
+                  subtitle: const Text('Informasi akan segera tersedia'),
+                  trailing: const Icon(Icons.open_in_new),
+                  onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Kebijakan privasi EcoTrash akan segera tersedia.',
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
         const SizedBox(height: 20),
         FilledButton.tonalIcon(
           key: const Key('profile-sign-out'),

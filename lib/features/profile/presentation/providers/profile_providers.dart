@@ -4,6 +4,11 @@ import 'package:ecotrash/features/pickup/presentation/providers/pickup_order_pro
 import 'package:ecotrash/features/profile/domain/entities/profile_stats.dart';
 import 'package:ecotrash/features/rewards/domain/rewards_config.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
+final appPackageInfoProvider = FutureProvider<PackageInfo>(
+  (_) => PackageInfo.fromPlatform(),
+);
 
 final profileStatsProvider = FutureProvider<ProfileStats>((ref) async {
   final orders = await ref.watch(pickupOrderControllerProvider.future);

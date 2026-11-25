@@ -12,7 +12,9 @@ import 'package:ecotrash/core/theme/color_schemes.dart';
 import 'package:ecotrash/core/theme/eco_colors.dart';
 import 'package:ecotrash/core/theme/theme_controller.dart';
 import 'package:ecotrash/core/widgets/eco_components.dart';
+import 'package:ecotrash/core/widgets/eco_logo.dart';
 import 'package:ecotrash/core/widgets/eco_states.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -72,6 +74,56 @@ class _StyleGuidePageState extends ConsumerState<StyleGuidePage> {
         body: ListView(
           padding: const EdgeInsets.all(20),
           children: [
+            if (kDebugMode) ...[
+              Text(
+                'Logo EcoTrash',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              for (final (label, brightness) in const <(String, Brightness)>[
+                ('Terang', Brightness.light),
+                ('Gelap', Brightness.dark),
+              ])
+                Card(
+                  child: Theme(
+                    data: ThemeData(
+                      useMaterial3: true,
+                      brightness: brightness,
+                      colorScheme: ColorScheme.fromSeed(
+                        seedColor: const Color(0xFF2E7D32),
+                        brightness: brightness,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Mode $label'),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 16,
+                            runSpacing: 12,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              const EcoLogo(
+                                size: 48,
+                                variant: EcoLogoVariant.icon,
+                              ),
+                              const EcoLogo(
+                                size: 36,
+                                variant: EcoLogoVariant.horizontal,
+                              ),
+                              EcoLogo(size: 48, variant: EcoLogoVariant.mono),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 16),
+            ],
             Text(
               'Skema warna',
               style: Theme.of(context).textTheme.headlineSmall,

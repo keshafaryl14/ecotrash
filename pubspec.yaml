@@ -58,6 +58,7 @@ dependencies:
   dynamic_color: 1.8.1
   flutter_animate: ^4.5.2
   animations: ^3.0.0
+  package_info_plus: ^10.2.2
 
 dev_dependencies:
   flutter_test:
@@ -84,6 +85,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/ecotrash_icon.png
+    - assets/images/logo/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -119,18 +121,33 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/ecotrash_icon.png
-  adaptive_icon_background: "#F8FCF9"
-  adaptive_icon_foreground: assets/ecotrash_icon.png
+  image_path: assets/images/logo/logo_icon_ios.png
+  adaptive_icon_background: "#2E7D32"
+  adaptive_icon_foreground: assets/images/logo/logo_foreground.png
+  adaptive_icon_foreground_inset: 0
+  adaptive_icon_monochrome: assets/images/logo/logo_mono.png
   remove_alpha_ios: true
+  background_color_ios: "#FFFFFF"
+  web:
+    generate: true
+    image_path: assets/images/logo/logo_icon_ios.png
+    background_color: "#F6FBF4"
+    theme_color: "#2E7D32"
+  windows:
+    generate: false
+  macos:
+    generate: false
 
 flutter_native_splash:
-  color: "#F8FCF9"
-  color_dark: "#101D16"
-  image: assets/ecotrash_icon.png
-  image_dark: assets/ecotrash_icon.png
+  web: false
+  color: "#F6FBF4"
+  color_dark: "#101712"
+  image: assets/images/logo/logo_splash.png
+  image_dark: assets/images/logo/logo_mono_splash.png
   android_12:
-    color: "#F8FCF9"
-    color_dark: "#101D16"
-    image: assets/ecotrash_icon.png
-    image_dark: assets/ecotrash_icon.png
+    color: "#F6FBF4"
+    color_dark: "#101712"
+    image: assets/images/logo/logo_splash.png
+    image_dark: assets/images/logo/logo_mono_splash.png
+    icon_background_color: "#F6FBF4"
+    icon_background_color_dark: "#101712"

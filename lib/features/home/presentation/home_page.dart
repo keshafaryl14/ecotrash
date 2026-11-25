@@ -6,6 +6,7 @@ import 'package:ecotrash/core/animations/sun_cloud_banner.dart';
 import 'package:ecotrash/core/animations/water_ripple.dart';
 import 'package:ecotrash/core/services/points_providers.dart';
 import 'package:ecotrash/core/theme/theme_controller.dart';
+import 'package:ecotrash/core/widgets/eco_logo.dart';
 import 'package:ecotrash/features/auth/domain/entities/auth_user.dart';
 import 'package:ecotrash/features/auth/presentation/auth_error_message.dart';
 import 'package:ecotrash/features/auth/presentation/providers/auth_providers.dart';
@@ -96,6 +97,10 @@ class _HomeContent extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
+        const Center(
+          child: EcoLogo(size: 72, variant: EcoLogoVariant.horizontal),
+        ),
+        const SizedBox(height: 16),
         SunCloudBanner(
           title: 'Hai, Sahabat Bumi!',
           subtitle: 'Setiap langkah kecil ikut merawat bumi.',

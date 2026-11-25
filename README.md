@@ -6,6 +6,13 @@ EcoTrash menghubungkan masyarakat dengan pemilahan sampah, bank sampah, layanan
 penjemputan, poin, dan edukasi keberlanjutan. Aplikasi menggunakan Flutter,
 Material 3, Riverpod, dan GoRouter.
 
+Sumber vektor logo tersedia di `assets/ecotrash_icon.svg` dan
+`assets/ecotrash_logo_horizontal.svg`. Aset turunan untuk launcher, splash,
+wordmark terang/gelap, dan ikon monokrom berada di `assets/images/logo/`.
+Konfigurasi generator tersedia di `pubspec.yaml`; jalankan
+`dart run flutter_launcher_icons` atau `dart run flutter_native_splash:create`
+setelah mengubah aset sumber.
+
 ## Fitur
 
 - Onboarding, autentikasi lokal, dan profil dengan ubah nama serta tema terang,

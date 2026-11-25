@@ -2,6 +2,7 @@ import 'package:ecotrash/core/constants/app_constants.dart';
 import 'package:ecotrash/core/animations/earth_globe.dart';
 import 'package:ecotrash/core/animations/falling_leaves.dart';
 import 'package:ecotrash/core/theme/theme_controller.dart';
+import 'package:ecotrash/core/widgets/eco_logo.dart';
 import 'package:ecotrash/features/onboarding/domain/repositories/onboarding_repository.dart';
 import 'package:ecotrash/features/onboarding/presentation/providers/onboarding_providers.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +77,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Selamat datang'),
+        title: const EcoLogo(size: 28, variant: EcoLogoVariant.horizontal),
         actions: [
           TextButton(
             onPressed: isLoading ? null : _finishOnboarding,
@@ -125,6 +126,13 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              if (index == 0) ...[
+                                const EcoLogo(
+                                  size: 44,
+                                  variant: EcoLogoVariant.horizontal,
+                                ),
+                                const SizedBox(height: 12),
+                              ],
                               if (index == 0)
                                 EarthGlobe(
                                   size: 176,

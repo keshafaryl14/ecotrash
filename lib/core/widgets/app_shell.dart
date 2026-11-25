@@ -1,5 +1,6 @@
 import 'package:ecotrash/core/constants/app_constants.dart';
 import 'package:ecotrash/core/theme/theme_controller.dart';
+import 'package:ecotrash/core/widgets/eco_logo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -57,7 +58,11 @@ class AppShell extends ConsumerWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('EcoTrash')),
+      appBar: AppBar(
+        title: currentLocation == AppRoutes.home
+            ? const EcoLogo(size: 28, variant: EcoLogoVariant.horizontal)
+            : const Text('EcoTrash'),
+      ),
       body: child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex < 0 ? 0 : selectedIndex,

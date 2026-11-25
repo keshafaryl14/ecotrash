@@ -83,7 +83,7 @@ class LocalRewardsNotificationService implements RewardsNotificationService {
     timezone.setLocalLocation(timezone.getLocation(localTimezone.identifier));
     final initialized = await _plugin.initialize(
       settings: const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        android: AndroidInitializationSettings('ic_notification'),
         iOS: DarwinInitializationSettings(
           requestAlertPermission: false,
           requestBadgePermission: false,
