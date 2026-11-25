@@ -16,8 +16,8 @@ void main() {
     await service.awardPickupCompletion(orderId: 'pickup-1', points: 30);
     await service.awardPickupCompletion(orderId: 'pickup-1', points: 30);
 
-    expect(await service.getBalance(), 30);
-    expect(await service.getLifetimePoints(), 30);
+    expect(await service.getBalance(), 50);
+    expect(await service.getLifetimePoints(), 50);
     final transactions = await service.getTransactions();
     expect(transactions, hasLength(1));
     expect(transactions.single.source.label, 'Penjemputan');
@@ -26,7 +26,7 @@ void main() {
     final ledger = jsonDecode(
       preferences.getString('eco_points_ledger')!,
     ) as Map<String, dynamic>;
-    expect(ledger['totalPoints'], 30);
+    expect(ledger['totalPoints'], 50);
     expect(ledger['awardedOrderIds'], ['pickup-1']);
   });
 

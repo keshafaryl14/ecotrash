@@ -1,6 +1,7 @@
 import 'package:ecotrash/core/constants/points_configuration.dart';
 import 'package:ecotrash/features/pickup/domain/entities/pickup_order.dart';
 import 'package:ecotrash/features/rewards/domain/entities/reward_level.dart';
+import 'package:ecotrash/features/rewards/domain/rewards_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -10,12 +11,18 @@ void main() {
         PickupWasteType.plastic: 1,
         PickupWasteType.paperCardboard: 2,
       }),
-      35,
+      22,
     );
     expect(
       PointsConfiguration.pointsPerKilogramByWasteType['smallElectronics'],
-      25,
+      20,
     );
+    expect(
+      RewardsConfig.calculatePickupPoints({'plastic': 10}, isFirstPickup: true),
+      130,
+    );
+    expect(RewardsConfig.pointsForWeights({'organic': 3, 'hazardous': 1}), 0);
+    expect(RewardsConfig.co2SavedKg({'plastic': 2}), 3);
   });
 
   test('assigns levels and progress from lifetime points', () {

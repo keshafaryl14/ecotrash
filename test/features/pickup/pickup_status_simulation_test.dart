@@ -1,10 +1,12 @@
 import 'package:ecotrash/core/services/points_providers.dart';
-import 'package:ecotrash/core/services/points_service.dart';
 import 'package:ecotrash/core/services/points_transaction.dart';
 import 'package:ecotrash/features/pickup/domain/entities/pickup_order.dart';
 import 'package:ecotrash/features/pickup/domain/repositories/pickup_order_repository.dart';
 import 'package:ecotrash/features/pickup/domain/services/pickup_notification_service.dart';
 import 'package:ecotrash/features/pickup/presentation/providers/pickup_order_providers.dart';
+
+import '../../helpers/points_service_test_adapter.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -55,7 +57,7 @@ void main() {
       container.read(pickupOrderControllerProvider).requireValue.single.status,
       PickupOrderStatus.completed,
     );
-    expect(points.awards, [('simulated-order', 45)]);
+    expect(points.awards, [('simulated-order', 30)]);
   });
 }
 
@@ -114,7 +116,7 @@ class _SilentNotificationService implements PickupNotificationService {
   ) async {}
 }
 
-class _RecordingPointsService implements PointsService {
+class _RecordingPointsService extends PointsServiceTestAdapter {
   final List<(String, int)> awards = [];
 
   @override
@@ -145,6 +147,7 @@ class _RecordingPointsService implements PointsService {
   Future<void> awardPickupCompletion({
     required String orderId,
     required int points,
+    double totalWeightKg = 0,
   }) async {
     awards.add((orderId, points));
   }

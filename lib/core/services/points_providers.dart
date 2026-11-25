@@ -7,8 +7,8 @@ final pointsServiceProvider = Provider<PointsService>((ref) {
   return SharedPreferencesPointsService();
 });
 
-final pointsBalanceProvider = FutureProvider<int>((ref) {
-  return ref.watch(pointsServiceProvider).getBalance();
+final pointsBalanceProvider = StreamProvider<int>((ref) {
+  return ref.watch(pointsServiceProvider).watchBalance();
 });
 
 final lifetimePointsProvider = FutureProvider<int>((ref) {

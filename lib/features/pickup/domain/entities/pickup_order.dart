@@ -1,4 +1,5 @@
 import 'package:ecotrash/core/constants/points_configuration.dart';
+import 'package:ecotrash/features/rewards/domain/rewards_config.dart';
 
 enum PickupWasteType { plastic, paperCardboard, glass, metal, smallElectronics }
 
@@ -133,10 +134,17 @@ class PickupOrder {
   };
 }
 
-int estimatePickupPointsForWeights(Map<PickupWasteType, double> weightsKg) =>
-    PointsConfiguration.pointsForWeights({
-      for (final entry in weightsKg.entries) entry.key.name: entry.value,
-    });
+int estimatePickupPointsForWeights(Map<PickupWasteType, double> weightsKg) {
+  final weights = {
+    for (final entry in weightsKg.entries) entry.key.name: entry.value,
+  };
+  final base = PointsConfiguration.pointsForWeights(weights);
+  final totalWeight = weights.values.fold<double>(0, (a, b) => a + b);
+  return base +
+      (totalWeight >= RewardsConfig.bulkWeightBonusThresholdKg
+          ? (base * RewardsConfig.bulkWeightBonusPercent / 100).round()
+          : 0);
+}
 
 int estimatePickupPoints(double totalWeightKg) =>
     (totalWeightKg * PointsConfiguration.fallbackPointsPerKilogram).round();

@@ -5,6 +5,8 @@ enum PointsSource {
   pickup,
   directDeposit,
   redemption,
+  bonus,
+  refund,
   systemAdjustment,
 }
 
@@ -14,6 +16,8 @@ extension PointsSourceLabel on PointsSource {
     PointsSource.pickup => 'Penjemputan',
     PointsSource.directDeposit => 'Setor langsung',
     PointsSource.redemption => 'Penukaran',
+    PointsSource.bonus => 'Bonus',
+    PointsSource.refund => 'Pengembalian poin',
     PointsSource.systemAdjustment => 'Penyesuaian saldo',
   };
 }
@@ -74,3 +78,5 @@ class PointsTransaction {
     'referenceId': referenceId,
   };
 }
+
+typedef PointTransaction = PointsTransaction;

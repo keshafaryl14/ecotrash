@@ -3,6 +3,8 @@ import 'package:ecotrash/core/services/points_providers.dart';
 import 'package:ecotrash/features/auth/domain/entities/auth_user.dart';
 import 'package:ecotrash/features/auth/presentation/auth_error_message.dart';
 import 'package:ecotrash/features/auth/presentation/providers/auth_providers.dart';
+import 'package:ecotrash/features/profile/presentation/providers/profile_providers.dart';
+import 'package:ecotrash/features/rewards/domain/entities/reward_level.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -82,6 +84,7 @@ class _HomeContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
     final points = ref.watch(pointsBalanceProvider);
+    final impact = ref.watch(profileStatsProvider);
 
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -162,6 +165,43 @@ class _HomeContent extends ConsumerWidget {
               ],
             ),
           ),
+        ),
+        const SizedBox(height: 12),
+        impact.when(
+          loading: () => const Card(
+            child: ListTile(
+              leading: CircularProgressIndicator(),
+              title: Text('Memuat dampak lingkungan…'),
+            ),
+          ),
+          error: (error, _) => Card(
+            child: ListTile(
+              leading: const Icon(Icons.error_outline),
+              title: Text('Dampak belum tersedia: $error'),
+              trailing: IconButton(
+                tooltip: 'Muat ulang',
+                onPressed: () => ref.invalidate(profileStatsProvider),
+                icon: const Icon(Icons.refresh),
+              ),
+            ),
+          ),
+          data: (stats) {
+            final level = RewardLevel.forTotalPoints(stats.totalPoints);
+            return Card(
+              child: ListTile(
+                leading: const Icon(Icons.eco_outlined),
+                title: Text('${level.badge} Level ${level.name}'),
+                subtitle: Text(
+                  'Estimasi ${stats.co2SavedKg.toStringAsFixed(1)} kg CO₂ dihemat',
+                ),
+                trailing: IconButton(
+                  tooltip: 'Lihat rewards',
+                  onPressed: () => context.go(AppRoutes.rewards),
+                  icon: const Icon(Icons.chevron_right),
+                ),
+              ),
+            );
+          },
         ),
         const SizedBox(height: 28),
         Text('Aksi cepat', style: Theme.of(context).textTheme.titleLarge),

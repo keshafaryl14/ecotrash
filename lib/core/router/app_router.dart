@@ -16,6 +16,11 @@ import 'package:ecotrash/features/pickup/presentation/pickup_order_detail_page.d
 import 'package:ecotrash/features/pickup/presentation/pickup_order_form_page.dart';
 import 'package:ecotrash/features/profile/presentation/profile_page.dart';
 import 'package:ecotrash/features/rewards/presentation/rewards_page.dart';
+import 'package:ecotrash/features/rewards/presentation/reward_catalog_page.dart';
+import 'package:ecotrash/features/rewards/presentation/reward_detail_page.dart';
+import 'package:ecotrash/features/rewards/presentation/reward_history_page.dart';
+import 'package:ecotrash/features/rewards/presentation/reward_voucher_detail_page.dart';
+import 'package:ecotrash/features/rewards/presentation/rewards_how_to_earn_page.dart';
 import 'package:ecotrash/features/rewards/presentation/rewards_vouchers_page.dart';
 import 'package:ecotrash/features/smart_scan/presentation/scan_result_page.dart';
 import 'package:ecotrash/features/smart_scan/presentation/smart_scan_page.dart';
@@ -124,8 +129,30 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const RewardsPage(),
           ),
           GoRoute(
+            path: AppRoutes.rewardCatalog,
+            builder: (context, state) => const RewardCatalogPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.rewardDetail,
+            builder: (context, state) =>
+                RewardDetailPage(rewardId: state.pathParameters['id']!),
+          ),
+          GoRoute(
             path: AppRoutes.rewardVouchers,
             builder: (context, state) => const RewardsVouchersPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.rewardVoucherDetail,
+            builder: (context, state) =>
+                RewardVoucherDetailPage(voucherId: state.pathParameters['id']!),
+          ),
+          GoRoute(
+            path: AppRoutes.rewardHistory,
+            builder: (context, state) => const RewardHistoryPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.rewardsHowToEarn,
+            builder: (context, state) => const RewardsHowToEarnPage(),
           ),
           GoRoute(
             path: AppRoutes.education,

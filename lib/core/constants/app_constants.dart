@@ -15,7 +15,12 @@ abstract final class AppRoutes {
   static const pickupNew = '/pickup/new';
   static const pickupDetail = '/pickup/:id';
   static const rewards = '/rewards';
+  static const rewardCatalog = '/rewards/catalog';
+  static const rewardDetail = '/rewards/detail/:id';
   static const rewardVouchers = '/rewards/vouchers';
+  static const rewardVoucherDetail = '/rewards/voucher/:id';
+  static const rewardHistory = '/rewards/history';
+  static const rewardsHowToEarn = '/rewards/how-to-earn';
   static const education = '/education';
   static const educationArticle = '/education/article/:slug';
   static const educationQuiz = '/education/quiz';

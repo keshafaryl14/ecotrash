@@ -5,8 +5,10 @@ import 'package:ecotrash/features/pickup/presentation/pickup_order_form_page.dar
 import 'package:ecotrash/features/pickup/presentation/pickup_page.dart';
 import 'package:ecotrash/features/pickup/presentation/providers/pickup_order_providers.dart';
 import 'package:ecotrash/features/pickup/data/repositories/shared_preferences_pickup_order_repository.dart';
-import 'package:ecotrash/core/services/points_service.dart';
 import 'package:ecotrash/core/services/points_transaction.dart';
+
+import '../../helpers/points_service_test_adapter.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -94,7 +96,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('pickup-step-next-2')).first);
     await tester.pumpAndSettle();
-    expect(find.text('45'), findsOneWidget);
+    expect(find.text('30'), findsOneWidget);
 
     await tester.ensureVisible(find.byKey(const Key('pickup-submit-order')));
     await tester.pumpAndSettle();
@@ -137,7 +139,7 @@ class _RecordingNotificationService implements PickupNotificationService {
   ) async {}
 }
 
-class _NoopPointsService implements PointsService {
+class _NoopPointsService extends PointsServiceTestAdapter {
   @override
   Future<int> getBalance() async => 0;
 
@@ -166,5 +168,6 @@ class _NoopPointsService implements PointsService {
   Future<void> awardPickupCompletion({
     required String orderId,
     required int points,
+    double totalWeightKg = 0,
   }) async {}
 }

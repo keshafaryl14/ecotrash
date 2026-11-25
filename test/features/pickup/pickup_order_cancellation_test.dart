@@ -1,11 +1,13 @@
 import 'package:ecotrash/core/services/points_providers.dart';
-import 'package:ecotrash/core/services/points_service.dart';
 import 'package:ecotrash/core/services/points_transaction.dart';
 import 'package:ecotrash/features/pickup/domain/entities/pickup_order.dart';
 import 'package:ecotrash/features/pickup/domain/repositories/pickup_order_repository.dart';
 import 'package:ecotrash/features/pickup/domain/services/pickup_notification_service.dart';
 import 'package:ecotrash/features/pickup/presentation/pickup_order_detail_page.dart';
 import 'package:ecotrash/features/pickup/presentation/providers/pickup_order_providers.dart';
+
+import '../../helpers/points_service_test_adapter.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -176,7 +178,7 @@ class _FakePickupNotificationService implements PickupNotificationService {
   ) async {}
 }
 
-class _FakePointsService implements PointsService {
+class _FakePointsService extends PointsServiceTestAdapter {
   @override
   Future<int> getBalance() async => 0;
 
@@ -205,5 +207,6 @@ class _FakePointsService implements PointsService {
   Future<void> awardPickupCompletion({
     required String orderId,
     required int points,
+    double totalWeightKg = 0,
   }) async {}
 }

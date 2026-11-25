@@ -1,14 +1,16 @@
 import 'package:ecotrash/features/education/domain/entities/education_article.dart';
+import 'package:ecotrash/core/services/points_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class EducationQuizPage extends StatefulWidget {
+class EducationQuizPage extends ConsumerStatefulWidget {
   const EducationQuizPage({super.key});
 
   @override
-  State<EducationQuizPage> createState() => _EducationQuizPageState();
+  ConsumerState<EducationQuizPage> createState() => _EducationQuizPageState();
 }
 
-class _EducationQuizPageState extends State<EducationQuizPage> {
+class _EducationQuizPageState extends ConsumerState<EducationQuizPage> {
   final List<int?> _answers = List.filled(QuizQuestion.questions.length, null);
   final _scrollController = ScrollController();
   bool _submitted = false;
@@ -75,7 +77,7 @@ class _EducationQuizPageState extends State<EducationQuizPage> {
     onChanged: (answer) => setState(() => _answers[index] = answer),
   );
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_answers.any((answer) => answer == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -85,6 +87,32 @@ class _EducationQuizPageState extends State<EducationQuizPage> {
       return;
     }
     setState(() => _submitted = true);
+    if (_score == QuizQuestion.questions.length) {
+      final now = DateTime.now();
+      final referenceId =
+          'perfect-${now.year}-${now.month.toString().padLeft(2, '0')}-'
+          '${now.day.toString().padLeft(2, '0')}';
+      try {
+        await ref
+            .read(pointsServiceProvider)
+            .awardQuizBonus(referenceId: referenceId);
+        ref
+          ..invalidate(pointsBalanceProvider)
+          ..invalidate(lifetimePointsProvider)
+          ..invalidate(pointsTransactionsProvider);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Bonus kuis +10 poin berhasil!')),
+          );
+        }
+      } catch (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Bonus kuis gagal dicatat: $error')),
+          );
+        }
+      }
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && _scrollController.hasClients) {
         _scrollController.animateTo(

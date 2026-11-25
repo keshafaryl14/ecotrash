@@ -5,6 +5,7 @@ import 'package:ecotrash/core/services/points_transaction.dart';
 import 'package:ecotrash/core/services/shared_preferences_points_service.dart';
 import 'package:ecotrash/features/rewards/domain/entities/reward.dart';
 import 'package:ecotrash/features/rewards/domain/services/ewallet_payout_service.dart';
+import 'package:ecotrash/features/rewards/domain/services/rewards_notification_service.dart';
 import 'package:ecotrash/features/rewards/presentation/providers/rewards_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,14 +24,17 @@ void main() {
       description: 'Setoran langsung',
     );
     final container = ProviderContainer(
-      overrides: [pointsServiceProvider.overrideWithValue(points)],
+      overrides: [
+        pointsServiceProvider.overrideWithValue(points),
+        rewardsNotificationServiceProvider.overrideWithValue(
+          _NoopRewardsNotificationService(),
+        ),
+      ],
     );
     addTearDown(container.dispose);
     await container.read(rewardsControllerProvider.future);
 
-    final reward = Reward.catalog.firstWhere(
-      (item) => item.id == 'eco-10-percent',
-    );
+    final reward = Reward.catalog.firstWhere((item) => item.id == 'eco-bag');
     final voucher = await container
         .read(rewardsControllerProvider.notifier)
         .redeem(reward);
@@ -59,27 +63,62 @@ void main() {
         overrides: [
           pointsServiceProvider.overrideWithValue(points),
           ewalletPayoutServiceProvider.overrideWithValue(payout),
+          ewalletPayoutDelayProvider.overrideWithValue(Duration.zero),
+          rewardsNotificationServiceProvider.overrideWithValue(
+            _NoopRewardsNotificationService(),
+          ),
         ],
       );
       addTearDown(container.dispose);
       await container.read(rewardsControllerProvider.future);
 
       final controller = container.read(rewardsControllerProvider.notifier);
-      final firstRedemption = controller.redeem(Reward.catalog.first);
+      final firstRedemption = controller.redeem(
+        Reward.catalog.first,
+        ewalletProvider: 'GoPay',
+        targetPhone: '081234567890',
+      );
+      final voucher = await firstRedemption;
       await expectLater(
-        controller.redeem(Reward.catalog.first),
+        controller.redeem(
+          Reward.catalog.first,
+          ewalletProvider: 'GoPay',
+          targetPhone: '081234567890',
+        ),
         throwsA(isA<RewardRedemptionException>()),
       );
       payout.complete('ECO10000-TEST');
-      await firstRedemption;
+      for (var index = 0; index < 100 && controller.isRedeeming; index++) {
+        await Future<void>.delayed(const Duration(milliseconds: 1));
+      }
       expect(await points.getBalance(), 0);
+      expect(
+        (await container.read(rewardRepositoryProvider).getVoucher(voucher.id))
+            ?.status,
+        RewardVoucherStatus.used,
+      );
 
       await expectLater(
-        controller.redeem(Reward.catalog.first),
+        controller.redeem(
+          Reward.catalog.first,
+          ewalletProvider: 'GoPay',
+          targetPhone: '081234567890',
+        ),
         throwsA(isA<RewardInsufficientPointsException>()),
       );
     },
   );
+}
+
+class _NoopRewardsNotificationService implements RewardsNotificationService {
+  @override
+  Future<bool> requestPermission() async => true;
+
+  @override
+  Future<void> redemptionSucceeded(RewardVoucher voucher) async {}
+
+  @override
+  Future<void> scheduleExpiryReminder(RewardVoucher voucher) async {}
 }
 
 class _PendingPayoutService implements EwalletPayoutService {

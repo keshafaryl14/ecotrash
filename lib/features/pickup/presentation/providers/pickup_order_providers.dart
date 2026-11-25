@@ -44,6 +44,7 @@ class PickupOrderController extends AsyncNotifier<List<PickupOrder>> {
           .awardPickupCompletion(
             orderId: order.id,
             points: order.estimatedPoints,
+            totalWeightKg: order.totalWeightKg,
           );
       ref
         ..invalidate(pointsBalanceProvider)
@@ -122,6 +123,7 @@ class PickupOrderController extends AsyncNotifier<List<PickupOrder>> {
           .awardPickupCompletion(
             orderId: updated.id,
             points: updated.estimatedPoints,
+            totalWeightKg: updated.totalWeightKg,
           );
       ref
         ..invalidate(pointsBalanceProvider)

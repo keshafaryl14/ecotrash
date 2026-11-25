@@ -1,7 +1,11 @@
+import 'package:ecotrash/core/constants/app_constants.dart';
+import 'package:ecotrash/core/theme/app_dimensions.dart';
+import 'package:ecotrash/core/widgets/app_state_widgets.dart';
 import 'package:ecotrash/features/rewards/domain/entities/reward.dart';
 import 'package:ecotrash/features/rewards/presentation/providers/rewards_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class RewardsVouchersPage extends ConsumerStatefulWidget {
   const RewardsVouchersPage({super.key});
@@ -16,6 +20,13 @@ class _RewardsVouchersPageState extends ConsumerState<RewardsVouchersPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<String?>(rewardsOperationMessageProvider, (previous, next) {
+      if (next != null) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(next)));
+        ref.read(rewardsOperationMessageProvider.notifier).clear();
+      }
+    });
     final vouchers = ref.watch(rewardsControllerProvider);
     return vouchers.when(
       loading: () => const Center(
@@ -38,11 +49,20 @@ class _RewardsVouchersPageState extends ConsumerState<RewardsVouchersPage> {
         ),
       ),
       data: (items) {
-        final filtered =
-            items.where((voucher) => voucher.status == _status).toList()
-              ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        final filtered = items.where((voucher) {
+          if (_status == RewardVoucherStatus.active) {
+            return voucher.status == RewardVoucherStatus.active ||
+                voucher.status == RewardVoucherStatus.processing;
+          }
+          if (_status == RewardVoucherStatus.expired) {
+            return voucher.status == RewardVoucherStatus.expired ||
+                voucher.status == RewardVoucherStatus.failed ||
+                voucher.status == RewardVoucherStatus.cancelled;
+          }
+          return voucher.status == _status;
+        }).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
         return ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(AppDimensions.pagePadding),
           children: [
             Text(
               'Voucher Saya',
@@ -72,109 +92,64 @@ class _RewardsVouchersPageState extends ConsumerState<RewardsVouchersPage> {
             const SizedBox(height: 12),
             if (filtered.isEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 40),
-                child: Column(
-                  children: [
-                    const Icon(Icons.confirmation_number_outlined, size: 48),
-                    const SizedBox(height: 12),
-                    Text('Belum ada voucher ${_status.label.toLowerCase()}.'),
-                  ],
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppDimensions.space32,
+                ),
+                child: AppMessageState(
+                  icon: Icons.confirmation_number_outlined,
+                  message: 'Belum ada voucher ${_status.label.toLowerCase()}.',
+                  actionLabel: _status == RewardVoucherStatus.active
+                      ? 'Cari reward'
+                      : null,
+                  onAction: _status == RewardVoucherStatus.active
+                      ? () => context.push(AppRoutes.rewardCatalog)
+                      : null,
                 ),
               )
             else
               for (final voucher in filtered)
                 _VoucherCard(
                   voucher: voucher,
-                  onMarkUsed: () => _markUsed(voucher),
+                  onTap: () => context.push(
+                    AppRoutes.rewardVoucherDetail.replaceFirst(
+                      ':id',
+                      voucher.id,
+                    ),
+                  ),
                 ),
           ],
         );
       },
     );
   }
-
-  Future<void> _markUsed(RewardVoucher voucher) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Tandai voucher terpakai?'),
-        content: Text('Voucher ${voucher.code} tidak dapat digunakan lagi.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Tandai terpakai'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) {
-      return;
-    }
-    try {
-      await ref.read(rewardsControllerProvider.notifier).markUsed(voucher.id);
-    } catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.toString())));
-      }
-    }
-  }
 }
 
 class _VoucherCard extends StatelessWidget {
-  const _VoucherCard({required this.voucher, required this.onMarkUsed});
+  const _VoucherCard({required this.voucher, required this.onTap});
 
   final RewardVoucher voucher;
-  final VoidCallback onMarkUsed;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.confirmation_number_outlined),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    voucher.title,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-                Chip(label: Text(voucher.status.label)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            SelectableText(
-              voucher.code,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 4),
-            Text('Berlaku hingga ${_formatDate(voucher.expiresAt)}'),
-            if (voucher.usedAt != null)
-              Text('Digunakan pada ${_formatDate(voucher.usedAt!)}'),
-            if (voucher.status == RewardVoucherStatus.active) ...[
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: onMarkUsed,
-                  child: const Text('Tandai terpakai'),
-                ),
-              ),
-            ],
-          ],
+      child: ListTile(
+        onTap: onTap,
+        leading: const Icon(Icons.confirmation_number_outlined),
+        title: Text(voucher.title),
+        subtitle: Text(
+          '${voucher.code}\n${voucher.merchant} · Berlaku hingga ${_formatDate(voucher.expiresAt)}'
+          '${voucher.status == RewardVoucherStatus.active ? '\n${_remainingDays(voucher.expiresAt)}' : ''}',
         ),
+        isThreeLine: true,
+        trailing: Chip(label: Text(voucher.status.label)),
       ),
     );
+  }
+
+  String _remainingDays(DateTime expiry) {
+    final days = expiry.difference(DateTime.now()).inDays;
+    return days <= 0 ? 'Hari ini' : '$days hari lagi';
   }
 
   String _formatDate(DateTime date) =>
@@ -185,7 +160,10 @@ class _VoucherCard extends StatelessWidget {
 extension on RewardVoucherStatus {
   String get label => switch (this) {
     RewardVoucherStatus.active => 'Aktif',
+    RewardVoucherStatus.processing => 'Diproses',
     RewardVoucherStatus.used => 'Terpakai',
     RewardVoucherStatus.expired => 'Kedaluwarsa',
+    RewardVoucherStatus.cancelled => 'Dibatalkan',
+    RewardVoucherStatus.failed => 'Gagal',
   };
 }

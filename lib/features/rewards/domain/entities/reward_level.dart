@@ -1,22 +1,39 @@
+import 'package:ecotrash/features/rewards/domain/rewards_config.dart';
+
 class RewardLevel {
   const RewardLevel({
     required this.name,
     required this.minimumPoints,
+    required this.badge,
+    required this.benefit,
     this.nextLevelMinimum,
   });
 
   final String name;
   final int minimumPoints;
+  final String badge;
+  final String benefit;
   final int? nextLevelMinimum;
 
-  static const levels = [
-    RewardLevel(name: 'Pemula', minimumPoints: 0, nextLevelMinimum: 500),
-    RewardLevel(
-      name: 'Pejuang Hijau',
-      minimumPoints: 500,
-      nextLevelMinimum: 2000,
-    ),
-    RewardLevel(name: 'Pahlawan Bumi', minimumPoints: 2000),
+  static final levels = [
+    for (var index = 0; index < RewardsConfig.levels.length; index++)
+      RewardLevel(
+        name: RewardsConfig.levels[index].$1,
+        minimumPoints: RewardsConfig.levels[index].$2,
+        badge: switch (index) {
+          0 => '🌱',
+          1 => '🌿',
+          _ => '🌍',
+        },
+        benefit: switch (index) {
+          0 => 'Mulai langkah baik untuk lingkungan.',
+          1 => 'Lencana Pejuang Hijau dan akses reward pilihan.',
+          _ => 'Lencana Pahlawan Bumi dan promo mitra eksklusif.',
+        },
+        nextLevelMinimum: index + 1 < RewardsConfig.levels.length
+            ? RewardsConfig.levels[index + 1].$2
+            : null,
+      ),
   ];
 
   static RewardLevel forTotalPoints(int totalPoints) {
@@ -27,6 +44,7 @@ class RewardLevel {
         'Tidak boleh negatif',
       );
     }
+
     return levels.lastWhere((level) => totalPoints >= level.minimumPoints);
   }
 
@@ -45,3 +63,5 @@ class RewardLevel {
     return next == null ? null : next - totalPoints;
   }
 }
+
+typedef UserLevel = RewardLevel;

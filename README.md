@@ -45,9 +45,31 @@ lib/
 test/
 ```
 
-State dikelola dengan Riverpod, navigasi dengan GoRouter. `shared_preferences`
-dipakai untuk prototipe lokal. Tarif poin per kilogram disimpan terpusat di
-`lib/core/constants/points_configuration.dart`.
+State dikelola dengan Riverpod, navigasi dengan GoRouter. `shared_preferences` dipakai untuk prototipe lokal. Tarif, bonus, level, batas
+penukaran, masa berlaku voucher, dan estimasi CO₂ dipusatkan di
+`lib/features/rewards/domain/rewards_config.dart`.
+
+## Aturan poin dan Rewards
+
+- Poin per kg: plastik 10, kertas/kardus 6, kaca 8, logam 15, dan elektronik
+  kecil 20. Organik dan B3 tidak menghasilkan poin.
+- Pickup minimal 10 kg mendapat bonus 10%; pickup pertama mendapat bonus 20
+  poin. Kuis dengan semua jawaban benar mendapat 10 poin sekali per hari.
+- Level dihitung dari total poin masuk: Pemula (0), Pejuang Hijau (500), dan
+  Pahlawan Bumi (2.000). Penukaran dibatasi tiga reward per hari.
+- Reward dapat ditukar dengan saldo e-wallet demo atau voucher diskon. Voucher
+  berlaku 30 hari; pembatalan voucher aktif mengembalikan poin hanya dalam 24
+  jam. Riwayat mencatat poin masuk, keluar, sumber, referensi, dan tanggal.
+- Nominal e-wallet dan kode transaksi adalah **simulasi lokal**, bukan transfer
+  uang. Notifikasi dan QR juga berjalan di sisi aplikasi.
+
+Saldo pada implementasi `SharedPreferencesPointsService` hanya disimpan di
+perangkat, sehingga tidak aman sebagai sumber kebenaran untuk transaksi
+produksi. Sebelum peluncuran, pindahkan validasi saldo, batas/stok reward,
+idempotensi, refund, dan transfer e-wallet ke backend tepercaya dengan
+transaksi atomik. Jangan menyimpan kredensial payment gateway di aplikasi
+mobile. `PointsService` serta `EwalletPayoutGateway`/`EwalletPayoutService`
+menjadi kontrak pengganti implementasi demo.
 
 ## Menjalankan aplikasi
 

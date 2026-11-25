@@ -319,6 +319,12 @@ class _ProfileStats extends StatelessWidget {
         label: 'Penjemputan selesai',
         value: '${stats.completedPickups}',
       ),
+      _ProfileStatTile(
+        key: const Key('profile-co2-saved'),
+        icon: Icons.eco_outlined,
+        label: 'Estimasi CO₂ dihemat',
+        value: '${stats.co2SavedKg.toStringAsFixed(1)} kg CO₂',
+      ),
     ],
   );
 }
