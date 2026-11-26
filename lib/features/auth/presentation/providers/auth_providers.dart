@@ -1,6 +1,7 @@
 import 'package:ecotrash/features/auth/data/repositories/local_auth_repository.dart';
 import 'package:ecotrash/features/auth/domain/entities/auth_user.dart';
 import 'package:ecotrash/features/auth/domain/repositories/auth_repository.dart';
+import 'package:ecotrash/features/auth/domain/services/otp_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
@@ -12,6 +13,12 @@ final authControllerProvider = AsyncNotifierProvider<AuthController, AuthUser?>(
   AuthController.new,
 );
 
+final currentRoleProvider = Provider<UserRole?>(
+  (ref) => ref.watch(authControllerProvider).asData?.value?.role,
+);
+
+final otpServiceProvider = Provider<OtpService>((ref) => MockOtpService());
+
 class AuthController extends AsyncNotifier<AuthUser?> {
   @override
   Future<AuthUser?> build() {
@@ -20,14 +27,24 @@ class AuthController extends AsyncNotifier<AuthUser?> {
 
   Future<AuthUser?> register({
     required String name,
-    required String email,
+    String? email,
+    String? phone,
     required String password,
+    UserRole role = UserRole.pengguna,
+    MitraProfile? mitraProfile,
   }) async {
     state = const AsyncLoading();
     final result = await AsyncValue.guard(
       () => ref
           .read(authRepositoryProvider)
-          .register(name: name, email: email, password: password),
+          .register(
+            name: name,
+            email: email,
+            phone: phone,
+            password: password,
+            role: role,
+            mitraProfile: mitraProfile,
+          ),
     );
     state = result;
     return result.when(
@@ -38,14 +55,23 @@ class AuthController extends AsyncNotifier<AuthUser?> {
   }
 
   Future<AuthUser?> signIn({
-    required String email,
+    String? email,
+    String? phone,
     required String password,
+    UserRole role = UserRole.pengguna,
+    bool remember = true,
   }) async {
     state = const AsyncLoading();
     final result = await AsyncValue.guard(
       () => ref
           .read(authRepositoryProvider)
-          .signIn(email: email, password: password),
+          .signIn(
+            email: email,
+            phone: phone,
+            password: password,
+            role: role,
+            remember: remember,
+          ),
     );
     state = result;
     return result.when(
@@ -53,6 +79,21 @@ class AuthController extends AsyncNotifier<AuthUser?> {
       error: (_, _) => null,
       loading: () => null,
     );
+  }
+
+  Future<AuthUser?> signInWithOtp({
+    required String phone,
+    UserRole role = UserRole.pengguna,
+    bool remember = true,
+  }) async {
+    state = const AsyncLoading();
+    final result = await AsyncValue.guard(
+      () => ref
+          .read(authRepositoryProvider)
+          .signInWithOtp(phone: phone, role: role, remember: remember),
+    );
+    state = result;
+    return result.asData?.value;
   }
 
   Future<AuthUser?> updateDisplayName(String name) async {

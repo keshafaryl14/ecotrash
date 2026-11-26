@@ -5,11 +5,26 @@ abstract interface class AuthRepository {
 
   Future<AuthUser> register({
     required String name,
-    required String email,
+    String? email,
+    String? phone,
     required String password,
+    UserRole role = UserRole.pengguna,
+    MitraProfile? mitraProfile,
   });
 
-  Future<AuthUser> signIn({required String email, required String password});
+  Future<AuthUser> signIn({
+    String? email,
+    String? phone,
+    required String password,
+    UserRole role = UserRole.pengguna,
+    bool remember = true,
+  });
+
+  Future<AuthUser> signInWithOtp({
+    required String phone,
+    required UserRole role,
+    bool remember = true,
+  });
 
   Future<AuthUser> updateDisplayName(String name);
 

@@ -3,13 +3,16 @@ import 'package:ecotrash/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ecotrash/features/auth/data/repositories/local_auth_repository.dart';
+import 'package:ecotrash/features/auth/presentation/providers/auth_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({
       AppStorageKeys.onboardingCompleted: true,
     });
+    LocalAuthRepository.resetInMemory();
   });
 
   testWidgets('login and registration show Indonesian validation errors', (
@@ -18,11 +21,13 @@ void main() {
     await tester.pumpWidget(_testApp());
     await tester.pumpAndSettle();
 
+    await tester.tap(find.text('Pengguna'));
+    await tester.pumpAndSettle();
     expect(find.text('Masuk'), findsWidgets);
     await tester.tap(find.byKey(const Key('login-submit')));
     await tester.pumpAndSettle();
-    expect(find.text('Email wajib diisi.'), findsOneWidget);
-    expect(find.text('Kata sandi wajib diisi.'), findsOneWidget);
+    expect(find.text('Email tidak valid'), findsOneWidget);
+    expect(find.text('Kata sandi wajib diisi'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Belum punya akun? Daftar'));
     await tester.tap(find.text('Belum punya akun? Daftar'));
@@ -35,35 +40,39 @@ void main() {
     );
     await tester.enterText(
       find.byKey(const Key('register-password')),
-      'pilahsampah',
+      'pilahsampah1',
     );
     await tester.enterText(
       find.byKey(const Key('register-password-confirmation')),
       'sampahpilah',
     );
+    await tester.tap(find.text('Saya menyetujui syarat dan kebijakan privasi'));
+    await tester.pump();
     await tester.ensureVisible(find.byKey(const Key('register-submit')));
     await tester.tap(find.byKey(const Key('register-submit')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Konfirmasi kata sandi tidak sama.'), findsOneWidget);
+    expect(find.text('Konfirmasi kata sandi belum sama'), findsOneWidget);
   });
 
   testWidgets('login displays an authentication error', (tester) async {
     await tester.pumpWidget(_testApp());
     await tester.pumpAndSettle();
 
+    await tester.tap(find.text('Pengguna'));
+    await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const Key('login-email')),
       'dina@example.com',
     );
     await tester.enterText(
       find.byKey(const Key('login-password')),
-      'pilahsampah',
+      'pilahsampah1',
     );
     await tester.tap(find.byKey(const Key('login-submit')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Email atau kata sandi tidak sesuai.'), findsOneWidget);
+    expect(find.textContaining('Akun belum terdaftar'), findsOneWidget);
   });
 
   testWidgets(
@@ -72,6 +81,8 @@ void main() {
       await tester.pumpWidget(_testApp());
       await tester.pumpAndSettle();
 
+      await tester.tap(find.text('Pengguna'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Belum punya akun? Daftar'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const Key('register-name')), 'Dina');
@@ -81,19 +92,21 @@ void main() {
       );
       await tester.enterText(
         find.byKey(const Key('register-password')),
-        'pilahsampah',
+        'pilahsampah1',
       );
       await tester.enterText(
         find.byKey(const Key('register-password-confirmation')),
-        'pilahsampah',
+        'pilahsampah1',
       );
+      await tester.tap(
+        find.text('Saya menyetujui syarat dan kebijakan privasi'),
+      );
+      await tester.pump();
       await tester.ensureVisible(find.byKey(const Key('register-submit')));
       await tester.tap(find.byKey(const Key('register-submit')));
       await tester.pumpAndSettle();
 
       expect(find.text('Halo, Dina!'), findsOneWidget);
-      final preferences = await SharedPreferences.getInstance();
-      expect(preferences.getString(AppStorageKeys.authUserName), 'Dina');
 
       await tester.tap(find.byKey(const Key('home-profile')));
       await tester.pumpAndSettle();
@@ -107,7 +120,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('profile-sign-out-confirm')));
       await tester.pumpAndSettle();
-      expect(find.text('Selamat datang kembali'), findsOneWidget);
+      expect(find.text('Masuk sebagai Pengguna'), findsOneWidget);
 
       await tester.enterText(
         find.byKey(const Key('login-email')),
@@ -115,7 +128,7 @@ void main() {
       );
       await tester.enterText(
         find.byKey(const Key('login-password')),
-        'pilahsampah',
+        'pilahsampah1',
       );
       await tester.tap(find.byKey(const Key('login-submit')));
       await tester.pumpAndSettle();
@@ -124,8 +137,13 @@ void main() {
   );
 }
 
-Widget _testApp() => const ProviderScope(
-  child: MediaQuery(
+Widget _testApp() => ProviderScope(
+  overrides: [
+    authRepositoryProvider.overrideWithValue(
+      LocalAuthRepository(inMemory: true),
+    ),
+  ],
+  child: const MediaQuery(
     data: MediaQueryData(disableAnimations: true),
     child: EcoTrashApp(),
   ),

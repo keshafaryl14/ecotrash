@@ -6,6 +6,13 @@ abstract final class AppRoutes {
   static const onboarding = '/onboarding';
   static const login = '/login';
   static const register = '/register';
+  static const roleSelection = '/masuk-sebagai';
+  static const mitraShell = '/mitra';
+  static const mitraDashboard = '/mitra/dashboard';
+  static const mitraRequests = '/mitra/permintaan';
+  static const mitraStock = '/mitra/stok';
+  static const mitraHistory = '/mitra/riwayat';
+  static const mitraProfile = '/mitra/profil';
   static const home = '/home';
   static const scan = '/scan';
   static const scanResult = '/scan/result';

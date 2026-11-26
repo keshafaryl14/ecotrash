@@ -56,6 +56,15 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     }
   }
 
+  Future<void> _skipOnboarding() async {
+    final completed = await ref
+        .read(onboardingControllerProvider.notifier)
+        .complete();
+    if (completed && mounted) {
+      context.go(AppRoutes.login);
+    }
+  }
+
   void _goToNextPage() {
     _pageController.nextPage(
       duration: const Duration(milliseconds: 250),
@@ -80,7 +89,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         title: const EcoLogo(size: 28, variant: EcoLogoVariant.horizontal),
         actions: [
           TextButton(
-            onPressed: isLoading ? null : _finishOnboarding,
+            onPressed: isLoading ? null : _skipOnboarding,
             child: const Text('Lewati'),
           ),
         ],

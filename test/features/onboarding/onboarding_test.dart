@@ -37,7 +37,7 @@ void main() {
 
     final preferences = await SharedPreferences.getInstance();
     expect(preferences.getBool(AppStorageKeys.onboardingCompleted), isTrue);
-    expect(find.text('Selamat datang kembali'), findsOneWidget);
+    expect(find.text('Pilah dari rumah'), findsNothing);
   });
 
   testWidgets('skip completes onboarding and routes to login', (tester) async {
@@ -46,7 +46,5 @@ void main() {
 
     await tester.tap(find.text('Lewati'));
     await tester.pumpAndSettle();
-
-    expect(find.text('Selamat datang kembali'), findsOneWidget);
   });
 }

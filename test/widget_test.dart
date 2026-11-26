@@ -3,6 +3,8 @@ import 'package:ecotrash/core/constants/app_constants.dart';
 import 'package:ecotrash/features/waste_bank_directory/domain/entities/geo_point.dart';
 import 'package:ecotrash/features/waste_bank_directory/domain/services/location_service.dart';
 import 'package:ecotrash/features/waste_bank_directory/presentation/providers/waste_bank_providers.dart';
+import 'package:ecotrash/features/auth/data/repositories/local_auth_repository.dart';
+import 'package:ecotrash/features/auth/presentation/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  setUp(() {
+  late LocalAuthRepository authRepository;
+  setUp(() async {
     const permissionsChannel = MethodChannel(
       'flutter.baseflow.com/permissions/methods',
     );
@@ -32,6 +35,13 @@ void main() {
       AppStorageKeys.authUserEmail: 'kesha@example.com',
       'eco_theme_preferences': '{"mode":"system","colorStyle":"dynamic","customSeed":774778,"earthAnimationsEnabled":false}',
     });
+    LocalAuthRepository.resetInMemory();
+    authRepository = LocalAuthRepository(inMemory: true);
+    await authRepository.register(
+      name: 'Kesha',
+      email: 'kesha@example.com',
+      password: 'sampah123',
+    );
   });
 
   testWidgets('EcoTrash opens and all five tabs navigate', (tester) async {
@@ -39,6 +49,7 @@ void main() {
       ProviderScope(
         overrides: [
           locationServiceProvider.overrideWithValue(_DeniedLocationService()),
+          authRepositoryProvider.overrideWithValue(authRepository),
         ],
         child: const EcoTrashApp(),
       ),
@@ -102,7 +113,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('profile-sign-out-confirm')));
     await tester.pumpAndSettle();
-    expect(find.text('Selamat datang kembali'), findsOneWidget);
+    expect(find.text('Masuk sebagai Pengguna'), findsOneWidget);
   });
 
   testWidgets('theme follows the system brightness', (tester) async {
@@ -114,6 +125,7 @@ void main() {
       ProviderScope(
         overrides: [
           locationServiceProvider.overrideWithValue(_DeniedLocationService()),
+          authRepositoryProvider.overrideWithValue(authRepository),
         ],
         child: const EcoTrashApp(),
       ),

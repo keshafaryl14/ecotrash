@@ -78,10 +78,19 @@ class _ProfileContent extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  user.email,
+                  user.email ?? user.phone ?? '-',
                   key: const Key('profile-email'),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 12),
+                Chip(
+                  avatar: const Icon(Icons.badge_outlined),
+                  label: Text(
+                    user.role == UserRole.mitra
+                        ? 'Mitra Bank Sampah'
+                        : 'Pengguna',
+                  ),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(

@@ -3,6 +3,9 @@ import 'package:ecotrash/core/widgets/app_shell.dart';
 import 'package:ecotrash/features/auth/presentation/auth_page.dart';
 import 'package:ecotrash/features/auth/presentation/providers/auth_providers.dart';
 import 'package:ecotrash/features/auth/presentation/register_page.dart';
+import 'package:ecotrash/features/auth/presentation/role_selection_page.dart';
+import 'package:ecotrash/features/auth/presentation/mitra_shell.dart';
+import 'package:ecotrash/features/auth/domain/entities/auth_user.dart';
 import 'package:ecotrash/features/waste_bank_directory/presentation/waste_bank_directory_page.dart';
 import 'package:ecotrash/features/education/presentation/education_page.dart';
 import 'package:ecotrash/features/education/domain/entities/education_article.dart';
@@ -46,16 +49,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       }
 
       final user = await ref.read(authRepositoryProvider).getCurrentUser();
-      final isAuthRoute = path == AppRoutes.login || path == AppRoutes.register;
+      final isAuthRoute =
+          path == AppRoutes.login ||
+          path == AppRoutes.register ||
+          path == AppRoutes.roleSelection;
 
       if (user == null) {
         if (isAuthRoute) {
           return null;
         }
-        return AppRoutes.login;
+        return AppRoutes.roleSelection;
       }
 
       if (isAuthRoute || path == AppRoutes.onboarding) {
+        return user.role == UserRole.mitra
+            ? AppRoutes.mitraDashboard
+            : AppRoutes.home;
+      }
+      final isMitraRoute = path.startsWith(AppRoutes.mitraShell);
+      if (user.role == UserRole.mitra && !isMitraRoute) {
+        return AppRoutes.mitraDashboard;
+      }
+      if (user.role == UserRole.pengguna && isMitraRoute) {
         return AppRoutes.home;
       }
       return null;
@@ -64,6 +79,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.onboarding,
         builder: (context, state) => const OnboardingPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.roleSelection,
+        builder: (context, state) => const RoleSelectionPage(),
       ),
       GoRoute(
         path: AppRoutes.login,
@@ -97,6 +116,45 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           }
           return WasteBankDetailPage(bank: bank);
         },
+      ),
+      ShellRoute(
+        builder: (context, state, child) =>
+            MitraShell(location: state.uri.path, child: child),
+        routes: [
+          GoRoute(
+            path: AppRoutes.mitraDashboard,
+            builder: (context, state) => const _MitraDashboardPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.mitraRequests,
+            builder: (context, state) => const MitraPlaceholderPage(
+              title: 'Permintaan Setoran',
+              message: 'Permintaan penjemputan mitra akan ditampilkan di sini.',
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.mitraStock,
+            builder: (context, state) => const MitraPlaceholderPage(
+              title: 'Stok & Harga Sampah',
+              message:
+                  'Kelola stok dan harga diterima untuk tiap jenis sampah.',
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.mitraHistory,
+            builder: (context, state) => const MitraPlaceholderPage(
+              title: 'Riwayat',
+              message: 'Riwayat setoran dan transaksi mitra.',
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.mitraProfile,
+            builder: (context, state) => const MitraPlaceholderPage(
+              title: 'Profil Mitra',
+              message: 'Nama bank, alamat, status verifikasi, dan data izin.',
+            ),
+          ),
+        ],
       ),
       ShellRoute(
         builder: (context, state, child) =>
@@ -217,3 +275,56 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref.onDispose(router.dispose);
   return router;
 });
+
+class _MitraDashboardPage extends ConsumerWidget {
+  const _MitraDashboardPage();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authControllerProvider).asData?.value;
+    return SafeArea(
+      child: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Dashboard Mitra',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(user?.name ?? 'Mitra Bank Sampah'),
+                  const SizedBox(height: 12),
+                  const ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(Icons.verified_outlined),
+                    title: Text('Status verifikasi'),
+                    subtitle: Text('Disetujui (mode demo)'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Card(
+            child: ListTile(
+              leading: Icon(Icons.assignment_outlined),
+              title: Text('Permintaan hari ini'),
+              trailing: Text('3'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            onPressed: () => context.go(AppRoutes.mitraProfile),
+            icon: const Icon(Icons.store_outlined),
+            label: const Text('Buka Profil Mitra'),
+          ),
+        ],
+      ),
+    );
+  }
+}
